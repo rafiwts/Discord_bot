@@ -8,6 +8,9 @@ packages = [{include = "discord_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+discord = "^2.3.1"
+requests = "^2.31.0"
+python-dotenv = "^1.0.0"
 
 
 [build-system]

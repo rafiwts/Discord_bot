@@ -8,6 +8,3 @@ class Session:
     is_active: bool = False
     start_time: int = 0
     finish_time: int = 0
-
-    def current_user(self, user):
-        self.user_id = user

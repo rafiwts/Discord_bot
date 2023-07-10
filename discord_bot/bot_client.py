@@ -1,18 +1,20 @@
 import discord
 from discord.ext import commands
 
+import server_events, users_commands
 from web_responses import get_encouragement_quote
-from user_choices import display_quotation_choice
+from session import Session
 
 import os
 import logging
 import datetime
 from dotenv import load_dotenv
-from bot_session import Session
 
 load_dotenv()
+
 TOKEN = os.getenv('TOKEN')
-CHANNEL_ID = 1125323466921476118 # does not work as an environment variable
+# does not work as an environment variable
+CHANNEL_ID = 1125323466921476118 
 GUILD = os.getenv('DISCORD_GUILD')
 
 handler = logging.FileHandler(filename='discord.log',
@@ -24,43 +26,50 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+#TODO: Think about a more efficient implementation of the list
+list_of_commands = ['$', '?']
+
 session = Session(bot_id=bot.user, user_id='123')
 
 
 @bot.event
 async def on_ready() -> None:
-      print(f'Hi Everyone! {bot.user} has just connected to {GUILD}')
-      channel = bot.get_channel(CHANNEL_ID)
-      await channel.send (f'Hi Everyone! {bot.user} has just connected to {GUILD}')
+      response_on_ready = server_events.return_on_ready(bot=bot, 
+                                                        channel_id=CHANNEL_ID, 
+                                                        guild=GUILD)
+      await response_on_ready
 
       
 @bot.event
 async def on_message(message) -> None:
+      #TODO: different events -> and different commands - bot should display them - we will develop it later on
       if message.author == bot.user:
             return
+      
+      if message.content in list_of_commands:
+            response_to_message = server_events.return_on_message(message=message)
+            await response_to_message
 
-      if message.content.startswith('$'):
-            choices = ['encourage', 'disappoint']
-            choice = display_quotation_choice(choices)
-            await message.channel.send(choice)
-      
-      if message.content.startswith('?'):
-            await message.channel.send('Hello!')
-      
       await bot.process_commands(message)
 
+
+@bot.event
+async def on_typing(channel, user, when):
+     response_to_typing = server_events.return_on_typing(channel=channel, 
+                                                         user=user, 
+                                                         when=when)
+     await response_to_typing
+   
 
 @bot.command()
 async def start(ctx):
       if session.is_active:
             await ctx.send('A session is already active!')
             return
-      
-      
-      session.is_active = True
-      session.start_time = ctx.message.created_at.timestamp()
-      session_starting_time = ctx.message.created_at.strftime('%H:%M:%S')
-      await ctx.send(f'New session started at {session_starting_time} by {session.user_id}')
+
+      start_new_session = users_commands.new_session_command(context=ctx,
+                                                             current_session=session)
+      await start_new_session
 
 
 @bot.command()
@@ -69,23 +78,17 @@ async def end(ctx):
           await ctx.send('Session is not active!')
           return
      
-      session.is_active = False
-      session.finish_time = ctx.message.created_at.timestamp()
-      duration = session.finish_time - session.start_time
-      duration_in_seconds= datetime.timedelta(seconds=duration).total_seconds()
-      await ctx.send(f'The session ended after {round(duration_in_seconds, 2)} seconds')
+      end_current_session = users_commands.end_session_command(context=ctx,
+                                                               current_session=session)
+      await end_current_session
 
 
 @bot.command()
-async def users(ctx, args):
-      for guild in bot.guilds:
-            if guild.name == GUILD:
-                  break
-      
-      members = ([member.name for member in guild.members])
-      print(members)
-     
-      await ctx.send(args)
+async def users(ctx):
+      users_list = users_commands.list_of_users(context=ctx,
+                                   guild_id=GUILD,
+                                   bot=bot,)
+      await users_list
 
 
 @bot.command()

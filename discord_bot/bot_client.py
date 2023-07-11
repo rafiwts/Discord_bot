@@ -1,13 +1,13 @@
 import discord
 from discord.ext import commands
 
-import server_events, users_commands
+from server_events import ServerEvents
+from users_commands import UserCommands
 from web_responses import get_encouragement_quote
 from session import Session
 
 import os
 import logging
-import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,40 +26,54 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-#TODO: Think about a more efficient implementation of the list
-list_of_commands = ['$', '?']
-
 session = Session(bot_id=bot.user, user_id='123')
 
 
 @bot.event
 async def on_ready() -> None:
-      response_on_ready = server_events.return_on_ready(bot=bot, 
-                                                        channel_id=CHANNEL_ID, 
-                                                        guild=GUILD)
+      response_on_ready = ServerEvents.return_on_ready(bot=bot, 
+                                                       channel_id=CHANNEL_ID, 
+                                                       guild=GUILD)
       await response_on_ready
 
       
 @bot.event
 async def on_message(message) -> None:
       #TODO: different events -> and different commands - bot should display them - we will develop it later on
+      #TODO: Think about a more efficient implementation of the list
+      list_of_commands = ['$', '?', 'showevents', 'showcommands']
+
       if message.author == bot.user:
             return
       
       if message.content in list_of_commands:
-            response_to_message = server_events.return_on_message(message=message)
+            response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
 
       await bot.process_commands(message)
 
 
 @bot.event
+async def on_message_edit(old_message, new_message):
+      user = old_message.author
+      response_on_edditing = ServerEvents.return_on_editing(old_message=old_message,
+                                                            new_message=new_message,
+                                                            user=user)
+      await response_on_edditing
+
+
+@bot.event
 async def on_typing(channel, user, when):
-     response_to_typing = server_events.return_on_typing(channel=channel, 
-                                                         user=user, 
-                                                         when=when)
+     response_to_typing = ServerEvents.return_on_typing(channel=channel, 
+                                                        user=user, 
+                                                        when=when)
      await response_to_typing
-   
+
+
+@bot.command()
+async def joined(ctx, *, member: discord.Member):
+    await ctx.send(f'{member} joined on {member.joined_at}')
+
 
 @bot.command()
 async def start(ctx):
@@ -67,8 +81,8 @@ async def start(ctx):
             await ctx.send('A session is already active!')
             return
 
-      start_new_session = users_commands.new_session_command(context=ctx,
-                                                             current_session=session)
+      start_new_session = UserCommands.new_session_command(context=ctx,
+                                                           current_session=session)
       await start_new_session
 
 
@@ -78,37 +92,32 @@ async def end(ctx):
           await ctx.send('Session is not active!')
           return
      
-      end_current_session = users_commands.end_session_command(context=ctx,
-                                                               current_session=session)
+      end_current_session = UserCommands.end_session_command(context=ctx,
+                                                             current_session=session)
       await end_current_session
 
 
 @bot.command()
 async def users(ctx):
-      users_list = users_commands.list_of_users(context=ctx,
-                                   guild_id=GUILD,
-                                   bot=bot,)
+      users_list = UserCommands.list_of_users(context=ctx,
+                                              guild_id=GUILD,
+                                              bot=bot)
       await users_list
 
 
 @bot.command()
-async def square(ctx, arg): # The name of the function is the name of the command
-    print(arg) # this is the text that follows the command
-    await ctx.send(int(arg) ** 2) # ctx.send sends text in chat
+async def square(ctx, arg):
+      return_square_number = UserCommands.return_square(context=ctx,
+                                                        users_choice=arg)
+      await return_square_number
 
-
+      
 @bot.command()
 async def scrabblepoints(ctx, arg):
-    # Key for point values of each letter
-    score = {"a": 1, "c": 3, "b": 3, "e": 1, "d": 2, "g": 2,
-         "f": 4, "i": 1, "h": 4, "k": 5, "j": 8, "m": 3,
-         "l": 1, "o": 1, "n": 1, "q": 10, "p": 3, "s": 1,
-         "r": 1, "u": 1, "t": 1, "w": 4, "v": 4, "y": 4,
-         "x": 8, "z": 10}
-    points = 0
-    # Sum the points for each letter
-    for c in arg:
-        points += score[c]
-    await ctx.send(points)
+      return_points = UserCommands.get_scrabble_points(context=ctx,
+                                                       users_choice=arg)
+      await return_points
 
-bot.run(TOKEN, log_handler=handler)
+
+if __name__=='__main__':
+      bot.run(TOKEN, log_handler=handler)

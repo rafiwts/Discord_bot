@@ -31,12 +31,26 @@ session = Session(bot_id=bot.user, user_id='123')
 
 @bot.event
 async def on_ready() -> None:
-      response_on_ready = ServerEvents.return_on_ready(bot=bot, 
+      response_to_ready = ServerEvents.return_on_ready(bot=bot, 
                                                        channel_id=CHANNEL_ID, 
                                                        guild=GUILD)
-      await response_on_ready
+      await response_to_ready
 
-      
+
+@bot.event
+async def on_member_join(member):
+      response_to_joining = ServerEvents.return_on_joining(member=member,
+                                                           channel=CHANNEL_ID)
+      await response_to_joining
+
+
+@bot.event
+async def on_member_remove(member):
+      response_to_removing = ServerEvents.return_on_removing(member=member,
+                                                             channel=CHANNEL_ID)
+      await response_to_removing
+
+
 @bot.event
 async def on_message(message) -> None:
       #TODO: different events -> and different commands - bot should display them - we will develop it later on
@@ -56,10 +70,16 @@ async def on_message(message) -> None:
 @bot.event
 async def on_message_edit(old_message, new_message):
       user = old_message.author
-      response_on_edditing = ServerEvents.return_on_editing(old_message=old_message,
+      response_to_edditing = ServerEvents.return_on_editing(old_message=old_message,
                                                             new_message=new_message,
                                                             user=user)
-      await response_on_edditing
+      await response_to_edditing
+
+
+@bot.event
+async def on_message_delete(message):
+      response_to_deleting = ServerEvents.return_on_deleting(message=message)
+      await response_to_deleting
 
 
 @bot.event

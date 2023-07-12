@@ -18,6 +18,12 @@ class ServerEvents:
 Below you will find a list of commands that you can use:
 showevents: returns a list of actions
 showcommands: returns a list of commands''')
+    
+    def return_on_joining(member, channel):
+        return channel.send(f'a new user {member} has entered the chat')
+    
+    def return_on_removing(member, channel):
+        return channel.send(f'{member} has been removed')
 
     def return_on_message(message):
         if message.content.startswith('showevents'):
@@ -40,6 +46,9 @@ showcommands: returns a list of commands''')
         
     def return_on_editing(old_message, new_message, user):
         return new_message.channel.send(f'{user} has edited the message')
+    
+    def return_on_deleting(message):
+        return message.channel.send(f'{message.author} has deleted the message')
                                         
     def return_on_typing(channel, user, when):
         return channel.send(f'Hi {user}! How can I help you?')

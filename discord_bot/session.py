@@ -1,10 +1,21 @@
-from dataclasses import dataclass
+import time
 
-
-@dataclass
 class Session:
-    bot_id: str
-    user_id: str
-    is_active: bool = False
-    start_time: int = 0
-    finish_time: int = 0
+    def __init__(self, 
+                 bot_id: str, 
+                 user_id: str, 
+                 is_active: bool = False, 
+                 start_time: int = 0, 
+                 finish_time: int = 0):
+        self.bot_id = bot_id
+        self.user_id = user_id
+        self.is_active = is_active
+        self.start_time = start_time
+        self.finish_time = finish_time
+
+    @property
+    def duration_of_session(self):
+        current_time = self.start_time
+        time.sleep(4)
+        end_time = time.time()
+        return end_time - current_time

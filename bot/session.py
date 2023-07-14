@@ -5,8 +5,8 @@ class Session:
                  bot_id: str, 
                  user_id: str, 
                  is_active: bool = False, 
-                 start_time: int = 0, 
-                 finish_time: int = 0):
+                 start_time: int = time.time(), 
+                 finish_time: int = 0) -> None:
         self.bot_id = bot_id
         self.user_id = user_id
         self.is_active = is_active
@@ -14,8 +14,6 @@ class Session:
         self.finish_time = finish_time
 
     @property
-    def duration_of_session(self):
-        current_time = self.start_time
-        time.sleep(4)
+    def duration_of_session(self) -> int:
         end_time = time.time()
-        return end_time - current_time
+        return end_time - self.start_time

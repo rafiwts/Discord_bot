@@ -1,11 +1,11 @@
-import datetime
 import os
+import time
 from dotenv import load_dotenv
-#TODO: change it into a class --> properties will be fine I believe
 
 load_dotenv()
 
 
+#TODO: change it into several classes
 class UserCommands:
     # maybe they will be necessary later on
     token: int = os.getenv('TOKEN')
@@ -13,20 +13,22 @@ class UserCommands:
     channel_id: int = os.getenv('CHANNEL_ID')
     guild: str = os.getenv('DISCORD_GUILD')
 
-    def new_session_command(context, current_session):
-        current_session.is_active = True
-        current_session.start_time = context.message.created_at.timestamp()
+    def new_session_command(context, new_session):
+        new_session.is_active = True
+        new_session.start_time = time.time()
         session_starting_time = context.message.created_at.strftime('%H:%M:%S')
-        return context.send(f'New session started at {session_starting_time} by {current_session.user_id}')
-
+        return context.send(f'New session started at {session_starting_time} by {new_session.user_id}')
+    
+    def lasting_session(context, current_session):
+        return_session = current_session.duration_of_session
+        return context.send(f'The session lasts {round(return_session, 2)} seconds')
+        
     def end_session_command(context, current_session):
         current_session.is_active = False
-        current_session.finish_time = context.message.created_at.timestamp()
+        current_session.finish_time = time.time()
         duration = current_session.finish_time - current_session.start_time
-        #TODO: change the display of second/minutes
-        duration_in_seconds = datetime.timedelta(seconds=duration).total_seconds() 
-        return context.send(f'The session ended after {round(duration_in_seconds, 2)} seconds')
-
+        return context.send(f'The session ended after {round(duration, 2)} seconds')
+                   
     def list_of_users(context, guild_id, bot):
         for guild in bot.guilds:
                 if guild.name == guild_id:

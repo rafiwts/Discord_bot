@@ -1,5 +1,6 @@
 import discord
 
+
 class Controller:
     async def message_controller(self, message: discord.Message) -> None:
         print(message)

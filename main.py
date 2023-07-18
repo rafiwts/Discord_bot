@@ -1,13 +1,14 @@
 import discord
 
 import logging
+from typing import Coroutine
 
 from bot.client import DiscordBot
 from bot.session import Session
 from bot.server_events import ServerEvents
 from bot.users_commands import UserCommands
+from database.database_connection import create_tables
 from settings import CHANNEL_ID, GUILD, TOKEN
-
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,6 +23,8 @@ bot.initialize()
 
 new_session = Session(bot_id=bot.user,
                         user_id=bot.user)  
+
+create_tables()
 
 
 @bot.event
@@ -47,7 +50,7 @@ async def on_member_remove(member):
 
 
 @bot.event
-async def on_message(message: discord.Message) -> None:
+async def on_message(message: discord.Message) -> Coroutine:
       #TODO: different events -> and different commands - bot should display them - we will develop it later on
       #TODO: Think about a more efficient implementation of the list
       list_of_commands = ['$', '?', 'showevents', 'showcommands']
@@ -61,10 +64,10 @@ async def on_message(message: discord.Message) -> None:
             await bot.process_message(message)
             
       await bot.process_commands(message)
- 
+
 
 @bot.event
-async def on_message_edit(old_message, new_message):
+async def on_message_edit(old_message: discord.Message, new_message: discord.Message) -> Coroutine:
       user = old_message.author
       response_to_edditing = ServerEvents.return_on_editing(old_message=old_message,
                                                             new_message=new_message,
@@ -76,6 +79,16 @@ async def on_message_edit(old_message, new_message):
 async def on_message_delete(message):
       response_to_deleting = ServerEvents.return_on_deleting(message=message)
       await response_to_deleting
+
+
+@bot.event
+async def on_raw_reaction_add(reaction):
+      await bot.process_reaction(reaction)
+
+
+@bot.event
+async def on_raw_reaction_remove(reaction):
+      await bot.process_reaction(reaction)
 
 
 @bot.event

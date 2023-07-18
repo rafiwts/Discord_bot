@@ -13,6 +13,7 @@ requests = "^2.31.0"
 python-dotenv = "^1.0.0"
 peewee = "^3.16.2"
 psycopg2 = "^2.9.6"
+peewee-aio = "^1.6.0"
 
 
 [build-system]

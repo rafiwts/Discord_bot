@@ -14,15 +14,15 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 handler = logging.FileHandler(filename='discord.log',
-                        encoding='utf-8',
-                        mode='w')
+                              encoding='utf-8',
+                              mode='w')
 
 bot = DiscordBot(command_prefix='!', intents=intents)
 
 bot.initialize()
 
 new_session = Session(bot_id=bot.user,
-                        user_id=bot.user)  
+                      user_id=bot.user)  
 
 create_tables()
 
@@ -30,22 +30,22 @@ create_tables()
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot=bot, 
-                                                      channel_id=CHANNEL_ID, 
-                                                      guild=GUILD)
+                                                       channel_id=CHANNEL_ID, 
+                                                       guild=GUILD)
       await response_to_ready
 
 
 @bot.event
 async def on_member_join(member):
       response_to_joining = ServerEvents.return_on_joining(member=member,
-                                                      channel=CHANNEL_ID)                                          
+                                                           channel=CHANNEL_ID)                                          
       await response_to_joining
 
 
 @bot.event
 async def on_member_remove(member):
       response_to_removing = ServerEvents.return_on_removing(member=member,
-                                                            channel=CHANNEL_ID)
+                                                             channel=CHANNEL_ID)
       await response_to_removing
 
 
@@ -94,8 +94,8 @@ async def on_raw_reaction_remove(reaction):
 @bot.event
 async def on_typing(channel, user, when):
       response_to_typing = ServerEvents.return_on_typing(channel=channel, 
-                                                            user=user, 
-                                                            when=when)
+                                                         user=user, 
+                                                         when=when)
       await response_to_typing
 
 
@@ -112,7 +112,7 @@ async def start(ctx):
             return
       
       start_new_session = UserCommands.new_session_command(context=ctx,
-                                                      new_session=new_session)
+                                                           new_session=new_session)
       await start_new_session
 
 
@@ -123,7 +123,7 @@ async def session(ctx):
             return
 
       duration_of_session = UserCommands.lasting_session(context=ctx,
-                                                      current_session=new_session)
+                                                         current_session=new_session)
       await duration_of_session
 
 
@@ -134,29 +134,29 @@ async def end(ctx):
             return
 
       end_current_session = UserCommands.end_session_command(context=ctx,
-                                                            current_session=new_session)
+                                                             current_session=new_session)
       await end_current_session
 
 
 @bot.command()
 async def users(ctx):
       users_list = UserCommands.list_of_users(context=ctx,
-                                          guild_id=GUILD,
-                                          bot=bot)
+                                              guild_id=GUILD,
+                                              bot=bot)
       await users_list
 
 
 @bot.command()
 async def square(ctx, arg):
       return_square_number = UserCommands.return_square(context=ctx,
-                                                      users_choice=arg)
+                                                        users_choice=arg)
       await return_square_number
 
       
 @bot.command()
 async def scrabblepoints(ctx, arg):
       return_points = UserCommands.get_scrabble_points(context=ctx,
-                                                      users_choice=arg)
+                                                       users_choice=arg)
       await return_points
 
 

@@ -6,10 +6,12 @@ from database.models import DiscordUser
 
 
 class Message(DefaultDatabaseModel):
-    discord_id = peewee.IntegerField(unique=True)
-    content = peewee.TextField(null=False)
-    created_at = peewee.DateTimeField(default=datetime.now)
-    edited_at = peewee.DateTimeField(default=datetime.now)
-    user = peewee.ForeignKeyField(DiscordUser, 
-                                  backref='messages',
-                                  on_delete='CASCADE')
+    content: str = peewee.TextField(null=False)
+    created_at: int = peewee.DateTimeField(default=datetime.now)
+    edited_at: int = peewee.DateTimeField(default=datetime.now)
+    user: int = peewee.ForeignKeyField(DiscordUser, 
+                                       backref='messages',
+                                       on_delete='CASCADE')
+    
+    def __str__(self) -> str:
+        return f'Message {self.id}'

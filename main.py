@@ -62,8 +62,8 @@ async def on_message(message: discord.Message) -> Coroutine:
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
             await bot.process_message(message)
-            
-      await bot.process_commands(message)
+      else:
+            await bot.process_commands(message)
 
 
 @bot.event

@@ -20,9 +20,9 @@ handler = logging.FileHandler(filename='discord.log',
 bot = DiscordBot(command_prefix='!', intents=intents)
 
 bot.initialize()
-
-new_session = Session(bot_id=bot.user,
-                      user_id=bot.user)  
+#FIXME: find a better solutrion to it - creating session and then adding a parameter
+new_session = Session(bot_id=bot.user)
+new_session.user_id=discord.Member.name
 
 create_tables()
 
@@ -110,6 +110,8 @@ async def start(ctx):
       if new_session.is_active:
             await ctx.send('A session is already active!')
             return
+      
+      new_session.user_id = ctx.author
       
       start_new_session = UserCommands.new_session_command(context=ctx,
                                                            new_session=new_session)

@@ -7,11 +7,12 @@ from database.models import DiscordUser
 
 class Command(DefaultDatabaseModel):
     content: str = peewee.TextField(null=False)
-    created: int = peewee.DateTimeField(default=datetime.now)
-    updated: int = peewee.DateTimeField(default=datetime.now, null=True)
+    first_created: int = peewee.DateTimeField(default=datetime.now)
+    last_updated: int = peewee.DateTimeField(default=datetime.now, null=True)
     user: int = peewee.ForeignKeyField(DiscordUser, 
                                        backref='commands',
                                        on_delete='CASCADE')
+    command_count: int = peewee.IntegerField(default=1)
     
     def __str__(self) -> str:
         return self.content

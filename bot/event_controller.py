@@ -1,9 +1,10 @@
 import discord
+
 from database.models import Command, DiscordUser
+
 #TODO: finish the connection to the database 
 class Controller:
     async def message_controller(self, message: discord.Message) -> None:
-        #FIXME: messages are also intercepted by command_controller
         user = message.author
         print(user)
         print('--------')
@@ -14,6 +15,7 @@ class Controller:
     
     async def command_controller(self, message: discord.Message) -> None:
         author = message.author
+        #TODO: add this to a different place - create a user in a database upon joining the guild? think about it
         try:
             discord_user = DiscordUser.get(
                 DiscordUser.username==message.author)
@@ -29,18 +31,26 @@ class Controller:
             
         command = Command.get_or_none(
             (Command.content==message.content) &
-            (Command.user==discord_user.id)
-        )
+            (Command.user==discord_user.id))
 
         if command is None:
             command = Command.create(
                 content=message.content,
-                created=message.created_at,
+                first_created=message.created_at,
+                last_updated=message.created_at,
                 user=discord_user.id
             )
             command.save()
-        #TODO: change the columns -> first_created/last_updated/number_of_calls if exists
+        else:
+            update = Command.update(last_updated=message.created_at,
+                                    command_count=Command.command_count + 1)\
+                            .where((Command.content==message.content) &
+                                   (Command.user==discord_user.id))
+            update.execute()
+                
+        #TODO: change a column message - add a number of reactions --> maybe add a table reaction
         #TODO: maybe add a user to a database upon joining add add an aditional method on_joining?
-            
+        #TODO: commands are also messages - we want to save all messages created by the user - commands are only part of it
+        #TODO: think about the events and event model 
         print(message.content)
 

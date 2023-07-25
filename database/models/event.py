@@ -6,10 +6,11 @@ from database.models import DiscordUser
 
 
 class Event(DefaultDatabaseModel):
+    name: str = peewee.CharField()
     created: int = peewee.DateTimeField(default=datetime.now)
     user: int = peewee.ForeignKeyField(DiscordUser,
-                                  backref='events',
-                                  on_delete='CASCADE')
+                                       backref='events',
+                                       on_delete='CASCADE')
     
     def __str__(self) -> str:
         return f'Event {self.id}'

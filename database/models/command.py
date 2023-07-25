@@ -12,7 +12,7 @@ class Command(DefaultDatabaseModel):
     user: int = peewee.ForeignKeyField(DiscordUser, 
                                        backref='commands',
                                        on_delete='CASCADE')
-    command_count: int = peewee.IntegerField(default=1)
+    command_counter: int = peewee.IntegerField(default=1)
     
     def __str__(self) -> str:
         return self.content

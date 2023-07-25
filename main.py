@@ -53,17 +53,18 @@ async def on_member_remove(member):
 async def on_message(message: discord.Message) -> Coroutine:
       #TODO: different events -> and different commands - bot should display them - we will develop it later on
       #TODO: Think about a more efficient implementation of the list
-      list_of_commands = ['$', '?', 'showevents', 'showcommands']
+      list_of_events = ['$', '?', 'showevents', 'showcommands']
 
       if message.author == bot.user:
             return
-      
-      if message.content in list_of_commands:
+      elif message.content.startswith('!') and len(message.content) > 1:
+            await bot.process_commands(message)
+      elif message.content.startswith(tuple(list_of_events)):
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
             await bot.process_message(message)
       else:
-            await bot.process_commands(message)
+            await bot.process_message(message)
 
 
 @bot.event

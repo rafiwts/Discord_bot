@@ -5,6 +5,7 @@ from .event_controller import Controller
 from typing import Coroutine
 
 class DiscordBot(commands.Bot):
+    #TODO: add additional methods after dealing with databases and relations between columns
     controller: Controller
 
     def initialize(self) -> None:
@@ -19,3 +20,9 @@ class DiscordBot(commands.Bot):
     async def process_commands(self, message: discord.Message) -> Coroutine:
         await self.controller.command_controller(message)
         return await super().process_commands(message)
+    
+    async def process_bot(self, bot: commands.Bot) -> Coroutine:
+        await self.controller.bot_controller(bot)
+
+    async def process_user(self, member: discord.Member) -> Coroutine:
+        await self.controller.user_controller(member)

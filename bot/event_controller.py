@@ -1,30 +1,30 @@
 import discord
+from discord.ext import commands
 
-from database.models import DiscordUser, Command, Message
+from database.models import DiscordUser, Command, Message, BotUser
+
 #TODO: finish the connection to the database 
 class Controller:
     async def message_controller(self, message: discord.Message) -> None:
         user = message.author
-        print(user)
-        print('--------')
-        print(message)
+        
 
     async def reaction_controller(self, reaction: discord.RawReactionActionEvent) -> None:
         print(reaction)
     
     async def command_controller(self, message: discord.Message) -> None:
-        author = message.author
+        user = message.author
         #TODO: add this to a different place - create a user in a database upon joining the guild? think about it
         # create a user if does not exist
         try:
             discord_user = DiscordUser.get(DiscordUser.username==message.author)
         except DiscordUser.DoesNotExist:
             discord_user = DiscordUser.create(
-                username=author,
-                guildname=author.guild,
-                created_at=author.created_at,
-                joined_at=author.joined_at,
-                is_bot=author.bot)
+                username=user,
+                guildname=user.guild,
+                created_at=user.created_at,
+                joined_at=user.joined_at,
+                is_bot=user.bot)
             
             discord_user.save()
         #save a message to the database
@@ -54,12 +54,30 @@ class Controller:
                                      command=new_command.id)
         
         new_message.save()
-
-
-   
         #TODO: change a column message - add a number of reactions --> maybe add a table reaction
         #TODO: maybe add a user to a database upon joining add add an aditional method on_joining?
         #TODO: commands are also messages - we want to save all messages created by the user - commands are only part of it
         #TODO: think about the events and event model 
         print(message.content)
 
+    async def bot_controller(self, bot: commands.Bot) -> None:
+        try:
+            bot_owner = DiscordUser.get(DiscordUser.username==bot.application.owner.name)
+        except DiscordUser.DoesNotExist:
+            bot_owner = DiscordUser.create
+        if bot_owner is None:
+            bot_owner = DiscordUser.create
+        new_bot = BotUser.get_or_none(BotUser.botname==bot.user)
+        if new_bot is None:
+            new_bot = BotUser.create(botname=bot.user,
+                                     command_prefix=bot.command_prefix,
+                                     owner_id=bot_owner.id)
+            
+            new_bot.save()
+
+            
+        print(bot.command_prefix, bot.user, bot.status, list(bot.commands), bot.activity, bot.application_id,
+              bot.owner_id, bot.application, bot.help_command)
+
+    async def user_controller(self, user: discord.Member) -> None:
+        pass

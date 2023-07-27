@@ -33,6 +33,8 @@ async def on_ready() -> None:
                                                        channel_id=CHANNEL_ID, 
                                                        guild=GUILD)
       await response_to_ready
+      await bot.process_bot(bot=bot,
+                            guild=GUILD)
 
 
 @bot.event
@@ -51,7 +53,6 @@ async def on_member_remove(member):
 
 @bot.event
 async def on_message(message: discord.Message) -> Coroutine:
-      #TODO: different events -> and different commands - bot should display them - we will develop it later on
       #TODO: Think about a more efficient implementation of the list
       list_of_events = ['$', '?', 'showevents', 'showcommands']
 

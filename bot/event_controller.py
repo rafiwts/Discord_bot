@@ -60,13 +60,15 @@ class Controller:
         #TODO: think about the events and event model 
         print(message.content)
 
-    async def bot_controller(self, bot: commands.Bot) -> None:
+    async def bot_controller(self, bot: commands.Bot, guild: int) -> None:
         try:
-            bot_owner = DiscordUser.get(DiscordUser.username==bot.application.owner.name)
+            bot_owner = DiscordUser.get(DiscordUser.username=='rafiwts')
         except DiscordUser.DoesNotExist:
-            bot_owner = DiscordUser.create
-        if bot_owner is None:
-            bot_owner = DiscordUser.create
+            bot_owner = DiscordUser.create(username=bot.application.owner.name,
+                                           guildname=guild)
+            
+            bot_owner.save()
+    
         new_bot = BotUser.get_or_none(BotUser.botname==bot.user)
         if new_bot is None:
             new_bot = BotUser.create(botname=bot.user,

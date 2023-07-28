@@ -1,5 +1,5 @@
 from database.models.base import psql_database
-from database.models import DiscordUser, Message, Command, Event, Reaction
+from database.models import DiscordUser, Message, Command, Event, Reaction, BotUser
 
 
 def create_tables():
@@ -8,4 +8,5 @@ def create_tables():
                                          Message, 
                                          Command, 
                                          Event, 
-                                         Reaction])
+                                         Reaction,
+                                         BotUser])

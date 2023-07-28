@@ -21,8 +21,8 @@ class DiscordBot(commands.Bot):
         await self.controller.command_controller(message)
         return await super().process_commands(message)
     
-    async def process_bot(self, bot: commands.Bot) -> Coroutine:
-        await self.controller.bot_controller(bot)
+    async def process_bot(self, bot: commands.Bot, guild: int) -> Coroutine:
+        await self.controller.bot_controller(bot, guild)
 
     async def process_user(self, member: discord.Member) -> Coroutine:
         await self.controller.user_controller(member)

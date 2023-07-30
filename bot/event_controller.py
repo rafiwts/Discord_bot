@@ -5,9 +5,14 @@ from database.models import DiscordUser, Command, Message, BotUser
 
 #TODO: finish the connection to the database 
 class Controller:
-    async def message_controller(self, message: discord.Message) -> None:
-        user = message.author
-        
+    #Think about saving and updating messages - maybe with id but it is too big
+    async def message_controller(self, old_message: discord.Message,
+                                       new_message: discord.Message) -> None:
+        print(old_message.id)
+        if new_message is None:
+            print('None')
+        else:
+            print(new_message.id)
 
     async def reaction_controller(self, reaction: discord.RawReactionActionEvent) -> None:
         print(reaction)
@@ -60,12 +65,16 @@ class Controller:
         #TODO: think about the events and event model 
         print(message.content)
 
-    async def bot_controller(self, bot: commands.Bot, guild: int) -> None:
+    async def bot_controller(self, bot: commands.Bot, guild: str) -> None:
+        #the user who owns a bot is an admin at the same time
         try:
-            bot_owner = DiscordUser.get(DiscordUser.username=='rafiwts')
+            bot_owner = DiscordUser.get(DiscordUser.username==bot.application.owner.name)
+            bot_owner.is_admin = True
+            bot_owner.save()
         except DiscordUser.DoesNotExist:
             bot_owner = DiscordUser.create(username=bot.application.owner.name,
-                                           guildname=guild)
+                                           guildname=guild,
+                                           is_admin=True)
             
             bot_owner.save()
     
@@ -80,6 +89,17 @@ class Controller:
             
         print(bot.command_prefix, bot.user, bot.status, list(bot.commands), bot.activity, bot.application_id,
               bot.owner_id, bot.application, bot.help_command)
+        
+        print(bot.application.name)
+        print(bot.application.owner.name)
 
-    async def user_controller(self, user: discord.Member) -> None:
-        pass
+    async def user_controller(self, user: discord.Member, guild: str) -> None:
+        discord_user = DiscordUser.get_or_none(DiscordUser.username==user.name)
+        if discord_user is None:
+            new_user = DiscordUser.create(username=user.name,
+                                          guildname=guild)
+            
+            new_user.save()
+        else:
+            discord_user.delete_instance()
+        

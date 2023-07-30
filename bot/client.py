@@ -11,8 +11,9 @@ class DiscordBot(commands.Bot):
     def initialize(self) -> None:
         self.controller = Controller()
 
-    async def process_message(self, message: discord.Message) -> Coroutine:
-        await self.controller.message_controller(message)
+    async def process_message(self, old_message: discord.Message, 
+                                    new_message: discord.Message = None) -> Coroutine:
+        await self.controller.message_controller(old_message, new_message)
 
     async def process_reaction(self, reaction: discord.RawReactionActionEvent) -> Coroutine:
         await self.controller.reaction_controller(reaction)
@@ -21,8 +22,8 @@ class DiscordBot(commands.Bot):
         await self.controller.command_controller(message)
         return await super().process_commands(message)
     
-    async def process_bot(self, bot: commands.Bot, guild: int) -> Coroutine:
+    async def process_bot(self, bot: commands.Bot, guild: str) -> Coroutine:
         await self.controller.bot_controller(bot, guild)
 
-    async def process_user(self, member: discord.Member) -> Coroutine:
-        await self.controller.user_controller(member)
+    async def process_user(self, member: discord.Member, guild: str) -> Coroutine:
+        await self.controller.user_controller(member, guild)

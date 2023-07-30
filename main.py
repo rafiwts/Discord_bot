@@ -20,13 +20,13 @@ handler = logging.FileHandler(filename='discord.log',
 bot = DiscordBot(command_prefix='!', intents=intents)
 
 bot.initialize()
-#FIXME: find a better solutrion to it - creating session and then adding a parameter
+#FIXME: find a better solution to it - creating session and then adding a parameter
 new_session = Session(bot_id=bot.user)
 new_session.user_id=discord.Member.name
 
 create_tables()
 
-
+#TODO: delete an unecessary names from the parameters
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot=bot, 
@@ -42,6 +42,8 @@ async def on_member_join(member):
       response_to_joining = ServerEvents.return_on_joining(member=member,
                                                            channel=CHANNEL_ID)                                          
       await response_to_joining
+      await bot.process_user(member,
+                            guild=GUILD)
 
 
 @bot.event
@@ -63,9 +65,9 @@ async def on_message(message: discord.Message) -> Coroutine:
       elif message.content.startswith(tuple(list_of_events)):
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
-            await bot.process_message(message)
+            await bot.process_message(old_message=message)
       else:
-            await bot.process_message(message)
+            await bot.process_message(old_message=message)
 
 
 @bot.event
@@ -75,6 +77,8 @@ async def on_message_edit(old_message: discord.Message, new_message: discord.Mes
                                                             new_message=new_message,
                                                             user=user)
       await response_to_edditing
+      await bot.process_message(old_message,
+                                new_message)
 
 
 @bot.event

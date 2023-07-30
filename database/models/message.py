@@ -11,7 +11,7 @@ class Message(DefaultDatabaseModel):
     content: str = peewee.TextField(null=False)
     created_at: int = peewee.DateTimeField(default=datetime.now)
     edited_at: int = peewee.DateTimeField(null=True)
-    user: int = peewee.ForeignKeyField(DiscordUser, 
+    user: int = peewee.ForeignKeyField(DiscordUser,
                                        backref='messages',
                                        on_delete='CASCADE')
     command: int = peewee.ForeignKeyField(Command,

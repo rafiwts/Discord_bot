@@ -18,6 +18,16 @@ class Message(DefaultDatabaseModel):
                                           backref='messages',
                                           on_delete='CASCADE')
     reaction_counter: int = peewee.IntegerField(default=0)
+
+    @classmethod
+    def create_new_message(cls, content: peewee.TextField,
+                                first_created: peewee.DateTimeField, 
+                                user: peewee.ForeignKeyField,
+                                command: peewee.ForeignKeyField):
+        return cls.create(content=content,
+                          created_at=first_created,
+                          user=user,
+                          command=command)
     
     def __str__(self) -> str:
         return f'Message {self.id}'

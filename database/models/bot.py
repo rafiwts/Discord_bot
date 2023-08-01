@@ -12,6 +12,14 @@ class BotUser(DefaultDatabaseModel):
     owner_id: peewee.ForeignKeyField = peewee.ForeignKeyField(DiscordUser,
                                                               backref='owner',
                                                               on_delete='CASCADE')
+    
+    @classmethod
+    def create_new_bot(cls, botname: peewee.CharField, 
+                                  command_prefix: peewee.CharField, 
+                                  owner_id: peewee.ForeignKeyField):
+        return cls.create(botname=botname,
+                          command_prefix=command_prefix,
+                          owner_id=owner_id)
 
     def __str__(self) -> str:
         return self.botname

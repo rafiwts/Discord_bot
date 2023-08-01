@@ -1,6 +1,7 @@
 import peewee
 import settings
 
+#TODO: think about implementing class methods to tables - does it make any sense?
 psql_database = peewee.PostgresqlDatabase(settings.DATABASE_NAME,
                                           user=settings.USER_NAME,
                                           password=settings.PASSWORD,

@@ -43,7 +43,7 @@ async def on_member_join(member):
                                                            channel=CHANNEL_ID)                                          
       await response_to_joining
       await bot.process_user(member,
-                            guild=GUILD)
+                             guild=GUILD)
 
 
 @bot.event
@@ -60,6 +60,7 @@ async def on_message(message: discord.Message) -> Coroutine:
 
       if message.author == bot.user:
             return
+      #TODO: if something is not a command, do not process it as a command - it accepts all inputs with ! larger than 1  
       elif message.content.startswith('!') and len(message.content) > 1:
             await bot.process_commands(message)
       elif message.content.startswith(tuple(list_of_events)):

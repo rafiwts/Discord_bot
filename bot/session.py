@@ -3,7 +3,7 @@ import time
 class Session:
     def __init__(self, 
                  bot_id: str, 
-                 user_id: str, 
+                 user_id: str = None, 
                  is_active: bool = False, 
                  start_time: int = time.time(), 
                  finish_time: int = 0) -> None:

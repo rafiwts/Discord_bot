@@ -18,11 +18,26 @@ class DiscordUser(DefaultDatabaseModel):
     def create_new_user(cls, username: peewee.CharField, 
                              guildname: peewee.CharField,
                              created_at: peewee.DateTimeField,
-                             is_admin: peewee.BooleanField):
+                             joined_at: peewee.DateTimeField):
+        return cls.create(username=username,
+                          guildname=guildname,
+                          created_at=created_at)
+    
+    @classmethod
+    def create_new_admin(cls, username: peewee.CharField, 
+                              guildname: peewee.CharField,
+                              created_at: peewee.DateTimeField,
+                              admin: peewee.BooleanField = True):
         return cls.create(username=username,
                           guildname=guildname,
                           created_at=created_at,
-                          is_admin=is_admin)
+                          is_admin=admin)
     
+    @classmethod
+    def update_user_to_admin(cls, username: peewee.CharField, 
+                                  admin: peewee.BooleanField = True):
+        cls.update(is_admin=admin).where(cls.username==username).execute()
+        return cls.get(username==cls.username)
+
     def __str__(self) -> str:
         return self.username

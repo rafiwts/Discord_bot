@@ -30,17 +30,17 @@ showcommands: returns a list of commands''')
             list_of_commands = '''A list of commands
 '''
             return message.channel.send(list_of_commands)
-        
+ 
         if message.content.strip() == '$':
             choices = ['encourage', 'disappoint']
             return message.channel.send(choices)
-        
+
         if message.content.strip()  == '?':
             return message.channel.send('Hello!')
-        
-    def return_on_editing(old_message, new_message, user):
-        return new_message.channel.send(f'{user} has edited the message')
-    
+
+    def return_on_editing(sent_message, edited_message, user):
+        return edited_message.channel.send(f'{user} has edited the message')
+
     def return_on_deleting(message):
         return message.channel.send(f'{message.author} has deleted the message')
                                         

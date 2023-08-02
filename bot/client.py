@@ -11,9 +11,9 @@ class DiscordBot(commands.Bot):
     def initialize(self) -> None:
         self.controller = Controller()
 
-    async def process_message(self, old_message: discord.Message, 
-                                    new_message: discord.Message = None) -> Coroutine:
-        await self.controller.message_controller(old_message, new_message)
+    async def process_message(self, sent_message: discord.Message, 
+                                    edited_message: discord.Message = None) -> Coroutine:
+        await self.controller.message_controller(sent_message, edited_message)
 
     async def process_reaction(self, reaction: discord.RawReactionActionEvent) -> Coroutine:
         await self.controller.reaction_controller(reaction)

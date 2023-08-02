@@ -26,7 +26,7 @@ new_session.user_id=discord.Member.name
 
 create_tables()
 
-#TODO: delete an unecessary names from the parameters
+#TODO: delete unecessary names from the parameters
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot=bot, 
@@ -42,7 +42,7 @@ async def on_member_join(member):
       response_to_joining = ServerEvents.return_on_joining(member=member,
                                                            channel=CHANNEL_ID)                                          
       await response_to_joining
-      await bot.process_user(member,
+      await bot.process_user(member=member,
                              guild=GUILD)
 
 
@@ -51,7 +51,8 @@ async def on_member_remove(member):
       response_to_removing = ServerEvents.return_on_removing(member=member,
                                                              channel=CHANNEL_ID)
       await response_to_removing
-
+      await bot.process_user(member=member,
+                             guild=GUILD)
 
 @bot.event
 async def on_message(message: discord.Message) -> Coroutine:
@@ -66,20 +67,20 @@ async def on_message(message: discord.Message) -> Coroutine:
       elif message.content.startswith(tuple(list_of_events)):
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
-            await bot.process_message(old_message=message)
+            await bot.process_message(sent_message=message)
       else:
-            await bot.process_message(old_message=message)
+            await bot.process_message(sent_message=message)
 
 
 @bot.event
-async def on_message_edit(old_message: discord.Message, new_message: discord.Message) -> Coroutine:
-      user = old_message.author
-      response_to_edditing = ServerEvents.return_on_editing(old_message=old_message,
-                                                            new_message=new_message,
+async def on_message_edit(sent_message: discord.Message, edited_message: discord.Message) -> Coroutine:
+      user = sent_message.author
+      response_to_edditing = ServerEvents.return_on_editing(sent_message=sent_message,
+                                                            edited_message=edited_message,
                                                             user=user)
       await response_to_edditing
-      await bot.process_message(old_message,
-                                new_message)
+      await bot.process_message(sent_message=sent_message,
+                                edited_message=edited_message)
 
 
 @bot.event

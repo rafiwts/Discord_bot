@@ -67,9 +67,9 @@ async def on_message(message: discord.Message) -> Coroutine:
       elif message.content.startswith(tuple(list_of_events)):
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
-            await bot.process_message(sent_message=message)
+            await bot.process_message(message)
       else:
-            await bot.process_message(sent_message=message)
+            await bot.process_message(message)
 
 
 @bot.event
@@ -79,14 +79,15 @@ async def on_message_edit(sent_message: discord.Message, edited_message: discord
                                                             edited_message=edited_message,
                                                             user=user)
       await response_to_edditing
-      await bot.process_message(sent_message=sent_message,
-                                edited_message=edited_message)
+      await bot.edit_message(sent_message,
+                             edited_message)
 
 
 @bot.event
 async def on_message_delete(message):
       response_to_deleting = ServerEvents.return_on_deleting(message=message)
       await response_to_deleting
+      await bot.delete_message(message)
 
 
 @bot.event

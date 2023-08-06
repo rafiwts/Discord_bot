@@ -1,24 +1,24 @@
 import discord
 from discord.ext import commands
+from datetime import datetime
 import peewee
 
 from database.models import DiscordUser, Command, Message, BotUser, Reaction
 
-#TODO: finish the connection to the database 
 class Controller:
-    #why does it need a second parameter - controller in 3 methods?
+    #FIXME: why does it need a second parameter - controller in 3 methods?
     async def message_create_controller(controller,
                                         sent_message: discord.Message) -> None:
         discord_user = DiscordUser.get_or_none(username=sent_message.author)
         if discord_user is None:
             discord_user = DiscordUser.create_new_user(username=sent_message.author,
                                                        guildname=sent_message.author.guild,
-                                                       created_at=sent_message.author.created_at,
+                                                       creatsed_at=sent_message.author.created_at,
                                                        joined_at=sent_message.author.joined_at)
             
             discord_user.save()
         
-        new_message = Message.create_new_message(message_id=sent_message.id,
+        new_message = Message.create_new_message(discord_id=sent_message.id,
                                                  content=sent_message.content,
                                                  first_created=sent_message.created_at,
                                                  user=discord_user.id)
@@ -29,33 +29,46 @@ class Controller:
                                      sent_message: discord.Message,
                                      edited_message: discord.Message):
 
-        Message.edit_message(message_id=sent_message.id,
+        Message.edit_message(discord_id=sent_message.id,
                              new_content=edited_message.content,
                              edited_at=edited_message.edited_at)
     
     async def message_delete_controller(controller,
                                         sent_message: discord.Message):
         try:
-            existing_message = Message.get_by_id(sent_message.id)
+            existing_message = Message.get(discord_id=sent_message.id)
             existing_message.delete_instance()
         except Message.DoesNotExist:
             return
 
     async def reaction_controller(self, reaction: discord.RawReactionActionEvent) -> None:
-        print(reaction.event_type)
+        #FIXME: user to and from = change
+        message = Message.get(discord_id=reaction.message_id)
+        user = DiscordUser.get(username=reaction.member.name)
         if reaction.event_type == 'REACTION_ADD':
-            reaction_to_message = Reaction.create_new_reaction(user_from=reaction.user_id,
-                                                               user_to=reaction.member.id,
-                                                               message=reaction.message_id)
-            
-            reaction_to_message.save()
+            reaction_for_existing_message = Reaction.get_or_none(user_from=user.id,
+                                                                 user_to=user.id,
+                                                                 message=message.id)
+            if reaction_for_existing_message is None: 
+                reaction_to_messagee = Reaction.create_new_reaction(user_from=user.id,
+                                                       user_to=user.id,
+                                                       message=message.id)
+         
+                reaction_to_messagee.save()
+                Message.edit_message(discord_id=reaction.message_id,
+                                     reaction_counter=Message.reaction_counter + 1)
+            else:    
+                Reaction.update(edited_at=datetime.now())\
+                        .where(user_from=reaction.user_id,
+                            message=reaction.message_id)\
+                        .execute()
         else:
             reaction_to_message = Reaction.get(user_from=reaction.user_id,
-                                           user_to=reaction.member.id,
-                                           message=reaction.message_id)
-            
+                                               user_to=reaction.member.id,
+                                               message=message.id)
+        
             reaction_to_message.delete_instance()
-
+                
     async def command_controller(self, message: discord.Message) -> None:
         #TODO: if no command exist, it throws an error
         user = message.author
@@ -86,7 +99,7 @@ class Controller:
             
             update_counter.execute()
         #if it is a commands, is is saved in command and message table separately
-        new_message = Message.create_new_message(message_id=message.id,
+        new_message = Message.create_new_message(discord_id=message.id,
                                                  content=message.content,
                                                  first_created=message.created_at,
                                                  user=existing_discord_user.id,
@@ -118,27 +131,6 @@ class Controller:
             new_discord_bot.save()
         except peewee.IntegrityError:
             return
-       
-
-
-        # try:
-        #     new_bot_owner = DiscordUser.get(DiscordUser.username==bot.application.owner.name)
-        #     new_bot_owner.is_admin = True
-        #     new_bot_owner.save()
-        # except DiscordUser.DoesNotExist:
-        #     new_bot_owner = DiscordUser.create_new_user(username=bot.application.owner.name,
-        #                                                        guildname=guild,
-        #                                                        created_at=bot.application.owner.created_at,
-        #                                                        joined_at=bot.application.owner.joined_at,
-        #                                                        is_admin=True)
-            
-        #     new_bot_owner.save()
-            
-        print(bot.command_prefix, bot.user, bot.status, list(bot.commands), bot.activity, bot.application_id,
-              bot.owner_id, bot.application, bot.help_command)
-        
-        print(bot.application.name)
-        print(bot.application.owner.name)
 
     async def user_controller(self, user: discord.Member, guild: str) -> None:
         #TODO: change - get or create

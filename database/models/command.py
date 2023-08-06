@@ -33,6 +33,6 @@ class Command(DefaultDatabaseModel):
                           command_counter=command_counter)\
                           .where((cls.content==message) &
                                  (cls.user==discord_user))
-    
+
     def __str__(self) -> str:
         return self.content

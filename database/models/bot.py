@@ -15,8 +15,8 @@ class BotUser(DefaultDatabaseModel):
     
     @classmethod
     def create_new_bot(cls, botname: peewee.CharField, 
-                                  command_prefix: peewee.CharField, 
-                                  owner_id: peewee.ForeignKeyField):
+                            command_prefix: peewee.CharField, 
+                            owner_id: peewee.ForeignKeyField):
         return cls.create(botname=botname,
                           command_prefix=command_prefix,
                           owner_id=owner_id)

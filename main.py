@@ -27,6 +27,7 @@ new_session.user_id=discord.Member.name
 create_tables()
 
 #TODO: delete unecessary names from the parameters
+#TODO: add other parameters - ban/unban user - with new column in a table ban f/t
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot=bot, 
@@ -53,6 +54,7 @@ async def on_member_remove(member):
       await response_to_removing
       await bot.process_user(member=member,
                              guild=GUILD)
+      
 
 @bot.event
 async def on_message(message: discord.Message) -> Coroutine:
@@ -67,7 +69,7 @@ async def on_message(message: discord.Message) -> Coroutine:
       elif message.content.startswith(tuple(list_of_events)):
             response_to_message = ServerEvents.return_on_message(message=message)
             await response_to_message
-            await bot.process_message(message)
+            await bot.process_event(message)
       else:
             await bot.process_message(message)
 
@@ -154,6 +156,7 @@ async def users(ctx):
       users_list = UserCommands.list_of_users(context=ctx,
                                               guild_id=GUILD,
                                               bot=bot)
+      
       await users_list
 
 

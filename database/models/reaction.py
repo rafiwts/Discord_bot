@@ -1,4 +1,5 @@
 import peewee
+import discord
 from datetime import datetime
 
 from database.models.base import DefaultDatabaseModel
@@ -20,11 +21,10 @@ class Reaction(DefaultDatabaseModel):
    
     @classmethod
     def create_new_reaction(cls, user_from: peewee.ForeignKeyField,
-                                 user_to: peewee.ForeignKeyField, 
-                                 message: peewee.ForeignKeyField):
+                                 current_message: discord.Message):
         return cls.create(user_from=user_from,
-                          user_to=user_to,
-                          message=message)
+                          user_to=current_message.user.id,
+                          message=current_message.id)
     
     def __str__(self) -> str:
         return f'Reaction {self.id}'

@@ -5,7 +5,6 @@ from .event_controller import Controller
 from typing import Coroutine
 
 class DiscordBot(commands.Bot):
-    #TODO: add additional methods after dealing with databases and relations between columns
     controller: Controller
 
     def initialize(self) -> None:
@@ -31,8 +30,24 @@ class DiscordBot(commands.Bot):
         await self.controller.command_controller(message)
         return await super().process_commands(message)
     
-    async def process_bot(self, bot: commands.Bot, guild: str) -> Coroutine:
+    async def process_bot(self, bot: commands.Bot, 
+                                guild: discord.Guild) -> Coroutine:
         await self.controller.bot_controller(bot, guild)
 
-    async def process_user(self, member: discord.Member, guild: str) -> Coroutine:
-        await self.controller.user_controller(member, guild)
+    async def process_user(self, member: discord.Member, 
+                                 guild: discord.Guild,
+                                 updated_member: discord.Member = None) -> Coroutine:
+        if updated_member is None:
+            await self.controller.add_or_delete_user_controller(member, guild)
+        else:
+            await self.controller.update_user_controller(member, 
+                                                         updated_member, 
+                                                         guild)
+            
+    async def process_ban(self, member: discord.Member, 
+                                guild: discord.Guild) -> Coroutine:
+        await self.controller.ban_user_controller(member, guild)
+
+    async def process_unban(self, member: discord.Member, 
+                                  guild: discord.Guild) -> Coroutine:
+        await self.controller.unban_user_controller(member, guild)

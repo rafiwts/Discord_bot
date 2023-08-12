@@ -4,7 +4,7 @@ from datetime import datetime
 import peewee
 
 from database.models import DiscordUser, Command, Message, BotUser, Reaction, Event
-
+#TODO: improbing and adding commands and events, chatgpt, parsing
 class Controller:
     #FIXME: why does it need a second parameter - controller in 3 methods?
     async def message_create_controller(self, sent_message: discord.Message) -> None:
@@ -17,19 +17,19 @@ class Controller:
         new_message.save() 
 
     async def message_edit_cotroller(self, sent_message: discord.Message,
-                                           edited_message: discord.Message):
+                                           edited_message: discord.Message) -> None:
 
         Message.edit_message(discord_id=sent_message.id,
                              edited_message=edited_message)
     
-    async def message_delete_controller(self, sent_message: discord.Message):
+    async def message_delete_controller(self, sent_message: discord.Message) -> None:
         try:
             existing_message = Message.get(discord_id=sent_message.id)
             existing_message.delete_instance()
         except Message.DoesNotExist:
             return
         
-    async def event_controller(self, sent_message: discord.Message):
+    async def event_controller(self, sent_message: discord.Message) -> None:
         sender = sent_message.author
         discord_user = DiscordUser.get_or_create_user(sender)
         current_event = Event.get_or_none(name=sent_message.content,
@@ -121,11 +121,12 @@ class Controller:
         try:
             new_discord_bot = BotUser.create_new_bot(bot=bot,
                                                      owner_id=new_admin_user.id)
+            
             new_discord_bot.save()
         except peewee.IntegrityError:
             return
 
-    async def user_controller(self, user: discord.Member, guild: str) -> None:
+    async def add_or_delete_user_controller(self, user: discord.Member, guild: str) -> None:
         existing_discord_user = DiscordUser.get_or_none(DiscordUser.discord_id==user.id)
         if existing_discord_user is None:
             new_discord_user = DiscordUser.create_new_user(discord_user=user,
@@ -134,4 +135,21 @@ class Controller:
             new_discord_user.save()
         else:
             existing_discord_user.delete_instance()
+    
+    async def update_user_controller(self, user: discord.Member,
+                                           guild: discord.Guild,
+                                           updated_user: discord.Member):
+        DiscordUser.update_user_data(discord_user=user,
+                                     updated_user=updated_user,
+                                     guild=guild)
         
+    async def ban_user_controller(self, member: discord.Member, guild: discord.Guild) -> None:
+        DiscordUser.update_user_data(discord_user=member,
+                                     guild=guild,
+                                     banned=True)
+    
+    async def unban_user_controller(self, member: discord.Member, guild: discord.Guild) -> None:
+        DiscordUser.update_user_data(discord_user=member,
+                                     guild=guild,
+                                     banned=False)
+    

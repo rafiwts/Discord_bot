@@ -27,7 +27,6 @@ new_session.user_id=discord.Member.name
 create_tables()
 
 #TODO: delete unecessary names from the parameters
-#TODO: add other parameters - ban/unban user - with new column in a table ban f/t
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot=bot, 
@@ -45,16 +44,47 @@ async def on_member_join(member):
       await response_to_joining
       await bot.process_user(member=member,
                              guild=GUILD)
-
+      
 
 @bot.event
 async def on_member_remove(member):
       response_to_removing = ServerEvents.return_on_removing(member=member,
-                                                             channel=CHANNEL_ID)
+                                                             channel=CHANNEL_ID,
+                                                             guild=GUILD)
       await response_to_removing
       await bot.process_user(member=member,
                              guild=GUILD)
       
+
+@bot.event
+async def on_member_update(before, after):
+      response_to_updating = ServerEvents.return_on_updating(old_user=before,
+                                                             channel=CHANNEL_ID)
+      await response_to_updating
+      await bot.process_user(member=before,
+                             updated_member=after,
+                             guild=GUILD)
+
+
+@bot.event
+async def on_member_ban(guild, user):
+      response_to_banning = ServerEvents.return_on_banning(guild=guild,
+                                                           member=user,
+                                                           channel=CHANNEL_ID)
+      await response_to_banning
+      await bot.process_ban(member=user,
+                            guild=guild)      
+      
+
+@bot.event
+async def on_member_unban(guild, user):
+      response_to_unbanning = ServerEvents.return_on_unbanning(guild=guild,
+                                                               member=user,
+                                                               channel=CHANNEL_ID)
+      await response_to_unbanning
+      await bot.process_unban(member=user,
+                              guild=guild)
+
 
 @bot.event
 async def on_message(message: discord.Message) -> Coroutine:
@@ -105,8 +135,7 @@ async def on_raw_reaction_remove(reaction):
 @bot.event
 async def on_typing(channel, user, when):
       response_to_typing = ServerEvents.return_on_typing(channel=channel, 
-                                                         user=user, 
-                                                         when=when)
+                                                         user=user)
       await response_to_typing
 
 
@@ -117,7 +146,6 @@ async def joined(ctx, *, member: discord.Member):
 
 @bot.command()
 async def start(ctx):
-      #FIXME: how to call a class only within a function 
       if new_session.is_active:
             await ctx.send('A session is already active!')
             return

@@ -1,25 +1,20 @@
-from dotenv import load_dotenv
-import os
-#TODO: change it into a class --> properties will be fine I believe
-
-load_dotenv()
-
+import discord
+from discord.ext import commands
 
 class ServerEvents:
-    #TODO: maybe they will be necessary later on
-    token: int = os.getenv('TOKEN')
-    #FIXME: does not work as an environment variable
-    channel_id: int = os.getenv('CHANNEL_ID')
-    guild: str = os.getenv('DISCORD_GUILD')
 
-    def return_on_ready(bot, guild, channel_id):
+    @classmethod
+    def return_on_ready(cls, bot: commands.Bot, 
+                             guild: discord.Guild, 
+                             channel_id: int):
         channel = bot.get_channel(channel_id)
         return channel.send (f'''Hi Everyone! {bot.user} has just connected to {guild}
 Below you will find a list of commands that you can use:
 showevents: returns a list of actions
 showcommands: returns a list of commands''')
 
-    def return_on_message(message):
+    @classmethod
+    def return_on_message(cls, message: discord.Message):
         if message.content.strip() == 'showevents':
             #TODO: after finishing complete the list
             list_of_actions = ['encourage', 'disappoint']
@@ -38,18 +33,44 @@ showcommands: returns a list of commands''')
         if message.content.strip()  == '?':
             return message.channel.send('Hello!')
 
-    def return_on_editing(sent_message, edited_message, user):
+    @classmethod
+    def return_on_editing(cls, sent_message: discord.Message, 
+                               edited_message: discord.Message, 
+                               user: discord.Member):
         return edited_message.channel.send(f'{user} has edited the message')
 
-    def return_on_deleting(message):
+    @classmethod
+    def return_on_deleting(cls, message: discord.Message):
         return message.channel.send(f'{message.author} has deleted the message')
-                                        
-    def return_on_typing(channel, user, when):
+
+    @classmethod                                    
+    def return_on_typing(cls, channel: discord.TextChannel, 
+                              user: discord.Member):
         return channel.send(f'Hi {user}! How can I help you?')
     
-    def return_on_joining(member, channel):
+    @classmethod
+    def return_on_joining(cls, member: discord.Message, 
+                               channel: discord.TextChannel):
         return channel.send(f'a new user {member} has entered the chat')
     
-    def return_on_removing(member, channel):
+    @classmethod
+    def return_on_removing(cls, member: discord.Member, 
+                                channel: discord.TextChannel):
         return channel.send(f'{member} has been removed')
     
+    @classmethod
+    def return_on_updating(cls, old_user: discord.Member,
+                                channel: discord.TextChannel):
+        return channel.send(f'{old_user} has updated their profile')
+    
+    @classmethod
+    def return_on_banning(cls, guild: discord.Guild, 
+                               member: discord.Member,
+                               channel: discord.TextChannel):
+        return channel.send(f'{member} has been temporarily banned from {guild}')
+    
+    @classmethod
+    def return_on_unbanning(cls, guild: discord.Guild,
+                                 member: discord.Member,
+                                 channel:discord.TextChannel):
+        return channel.send(f'{member} has been unbanned from {guild}')

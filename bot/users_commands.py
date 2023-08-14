@@ -1,5 +1,6 @@
 import os
 import time
+import discord
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,14 +30,15 @@ class UserCommands:
         duration = current_session.finish_time - current_session.start_time
         return context.send(f'The session ended after {round(duration, 2)} seconds')
                    
-    def list_of_users(context, guild_id, bot):
+    def list_of_users(context, guild_id: discord.Guild, bot):
+    
         for guild in bot.guilds:
                 if guild.name == guild_id:
                     break
+        print(guild.members)
         
-        members = ([member.name for member in guild.members])
-        print(members)
-        
+        members = ([member for member in guild.members])
+
         return context.send(members)
 
     def return_square(context, users_choice): 

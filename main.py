@@ -20,76 +20,76 @@ handler = logging.FileHandler(filename='discord.log',
 bot = DiscordBot(command_prefix='!', intents=intents)
 
 bot.initialize()
-#FIXME: find a better solution to it - creating session and then adding a parameter
 new_session = Session(bot_id=bot.user)
 new_session.user_id=discord.Member.name
 
 create_tables()
 
-#TODO: delete unecessary names from the parameters
+
 @bot.event
 async def on_ready() -> None:
-      response_to_ready = ServerEvents.return_on_ready(bot=bot, 
-                                                       channel_id=CHANNEL_ID, 
-                                                       guild=GUILD)
+      response_to_ready = ServerEvents.return_on_ready(bot, 
+                                                       CHANNEL_ID, 
+                                                       GUILD)
       await response_to_ready
-      await bot.process_bot(bot=bot,
-                            guild=GUILD)
+      await bot.process_bot(bot,
+                            GUILD)
 
 
 @bot.event
-async def on_member_join(member):
-      response_to_joining = ServerEvents.return_on_joining(member=member,
-                                                           channel=CHANNEL_ID)                                          
+async def on_member_join(member) -> None: 
+      response_to_joining = ServerEvents.return_on_joining(member,
+                                                           CHANNEL_ID)                                          
       await response_to_joining
-      await bot.process_user(member=member,
-                             guild=GUILD)
+      await bot.process_user(member,
+                             GUILD)
       
 
 @bot.event
-async def on_member_remove(member):
-      response_to_removing = ServerEvents.return_on_removing(member=member,
-                                                             channel=CHANNEL_ID,
-                                                             guild=GUILD)
+async def on_member_remove(member) -> None:
+      response_to_removing = ServerEvents.return_on_removing(member,
+                                                             CHANNEL_ID,
+                                                             GUILD)
       await response_to_removing
-      await bot.process_user(member=member,
-                             guild=GUILD)
+      await bot.process_user(member,
+                             GUILD)
       
 
 @bot.event
-async def on_member_update(before, after):
-      response_to_updating = ServerEvents.return_on_updating(old_user=before,
-                                                             channel=CHANNEL_ID)
+async def on_member_update(before, after) -> None:
+      response_to_updating = ServerEvents.return_on_updating(before,
+                                                             CHANNEL_ID)
       await response_to_updating
-      await bot.process_user(member=before,
-                             updated_member=after,
-                             guild=GUILD)
+      await bot.process_user(before,
+                             after,
+                             GUILD)
 
 
 @bot.event
-async def on_member_ban(guild, user):
-      response_to_banning = ServerEvents.return_on_banning(guild=guild,
-                                                           member=user,
-                                                           channel=CHANNEL_ID)
+async def on_member_ban(guild, user) -> None:
+      response_to_banning = ServerEvents.return_on_banning(guild,
+                                                           user,
+                                                           CHANNEL_ID)
       await response_to_banning
-      await bot.process_ban(member=user,
-                            guild=guild)      
+      await bot.process_ban(user, guild)      
       
 
 @bot.event
-async def on_member_unban(guild, user):
-      response_to_unbanning = ServerEvents.return_on_unbanning(guild=guild,
-                                                               member=user,
-                                                               channel=CHANNEL_ID)
+async def on_member_unban(guild, user) -> None:
+      response_to_unbanning = ServerEvents.return_on_unbanning(guild,
+                                                               user,
+                                                               CHANNEL_ID)
       await response_to_unbanning
-      await bot.process_unban(member=user,
-                              guild=guild)
+      await bot.process_unban(user,
+                              guild)
 
 
 @bot.event
-async def on_message(message: discord.Message) -> Coroutine:
+async def on_message(message: discord.Message) -> None:
       #TODO: Think about a more efficient implementation of the list
       list_of_events = ['$', '?', 'showevents', 'showcommands']
+      list_of_commands = ['!joined', '!start', '!session', '!end', '!users', 'square', '!scrabblepoints']
+
 
       if message.author == bot.user:
             return
@@ -97,7 +97,8 @@ async def on_message(message: discord.Message) -> Coroutine:
       elif message.content.startswith('!') and len(message.content) > 1:
             await bot.process_commands(message)
       elif message.content.startswith(tuple(list_of_events)):
-            response_to_message = ServerEvents.return_on_message(message=message)
+            response_to_message = ServerEvents.return_on_message(message,
+                                                                 list_of_commands)
             await response_to_message
             await bot.process_event(message)
       else:
@@ -105,19 +106,19 @@ async def on_message(message: discord.Message) -> Coroutine:
 
 
 @bot.event
-async def on_message_edit(sent_message: discord.Message, edited_message: discord.Message) -> Coroutine:
+async def on_message_edit(sent_message: discord.Message, edited_message: discord.Message) -> None:
       user = sent_message.author
-      response_to_edditing = ServerEvents.return_on_editing(sent_message=sent_message,
-                                                            edited_message=edited_message,
-                                                            user=user)
+      response_to_edditing = ServerEvents.return_on_editing(sent_message,
+                                                            edited_message,
+                                                            user)
       await response_to_edditing
       await bot.edit_message(sent_message,
                              edited_message)
 
 
 @bot.event
-async def on_message_delete(message):
-      response_to_deleting = ServerEvents.return_on_deleting(message=message)
+async def on_message_delete(message) -> None:
+      response_to_deleting = ServerEvents.return_on_deleting(message)
       await response_to_deleting
       await bot.delete_message(message)
 
@@ -133,72 +134,66 @@ async def on_raw_reaction_remove(reaction):
 
 
 @bot.event
-async def on_typing(channel, user, when):
-      response_to_typing = ServerEvents.return_on_typing(channel=channel, 
-                                                         user=user)
+async def on_typing(channel, user, when) -> None:
+      response_to_typing = ServerEvents.return_on_typing(channel, user)
       await response_to_typing
 
 
 @bot.command()
-async def joined(ctx, *, member: discord.Member):
+async def joined(ctx, *, member: discord.Member) -> None:
       await ctx.send(f'{member} joined on {member.joined_at}')
 
 
 @bot.command()
-async def start(ctx):
+async def start(ctx) -> None:
       if new_session.is_active:
             await ctx.send('A session is already active!')
             return
       
       new_session.user_id = ctx.author
       
-      start_new_session = UserCommands.new_session_command(context=ctx,
-                                                           new_session=new_session)
+      start_new_session = UserCommands.new_session_command(ctx, new_session)
       await start_new_session
 
 
 @bot.command()
-async def session(ctx):
+async def session(ctx) -> None:
       if not new_session.is_active:
             await ctx.send('Session is not active')
             return
 
-      duration_of_session = UserCommands.lasting_session(context=ctx,
-                                                         current_session=new_session)
+      duration_of_session = UserCommands.lasting_session(ctx, new_session)
       await duration_of_session
 
 
 @bot.command()
-async def end(ctx):
+async def end(ctx) -> None:
       if not new_session.is_active:
             await ctx.send('Session is not active!')
             return
 
-      end_current_session = UserCommands.end_session_command(context=ctx,
-                                                             current_session=new_session)
+      end_current_session = UserCommands.end_session_command(ctx, new_session)
       await end_current_session
 
 
 @bot.command()
-async def users(ctx):
-      users_list = UserCommands.list_of_users(context=ctx,
-                                              guild_id=GUILD,
-                                              bot=bot)
+async def users(ctx) -> None:
+      users_list = UserCommands.list_of_users(ctx,
+                                              GUILD,
+                                              bot)
       
       await users_list
 
 
 @bot.command()
-async def square(ctx, arg):
-      return_square_number = UserCommands.return_square(context=ctx,
-                                                        users_choice=arg)
+async def square(ctx, arg) -> None:
+      return_square_number = UserCommands.return_square(ctx, arg)
       await return_square_number
 
       
 @bot.command()
-async def scrabblepoints(ctx, arg):
-      return_points = UserCommands.get_scrabble_points(context=ctx,
-                                                       users_choice=arg)
+async def scrabblepoints(ctx, arg) -> None:
+      return_points = UserCommands.get_scrabble_points(ctx, arg)
       await return_points
 
 

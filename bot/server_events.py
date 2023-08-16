@@ -1,5 +1,8 @@
 import discord
 from discord.ext import commands
+from .view_lists import (CommandsView, 
+                         EventsView,
+                         dict_of_events)
 
 class ServerEvents:
 
@@ -14,24 +17,27 @@ showevents: returns a list of actions
 showcommands: returns a list of commands''')
 
     @classmethod
-    def return_on_message(cls, message: discord.Message):
+    def return_on_message(cls, message: discord.Message,
+                               commands: CommandsView = CommandsView,
+                               events: EventsView = EventsView):
         if message.content.strip() == 'showevents':
             #TODO: after finishing complete the list
-            list_of_actions = ['encourage', 'disappoint']
-            return message.channel.send(list_of_actions)
+            return message.channel.send(events.return_all_events())
         
         if message.content.strip() == 'showcommands':
-            #TODO: after finishing complete the list
-            list_of_commands = '''A list of commands
-'''
-            return message.channel.send(list_of_commands)
- 
-        if message.content.strip() == '$':
-            choices = ['encourage', 'disappoint']
-            return message.channel.send(choices)
-
-        if message.content.strip()  == '?':
-            return message.channel.send('Hello!')
+            return message.channel.send(commands.return_all_commands())
+        
+    @classmethod
+    def return_on_event(cls, message: discord.Message):
+        #TODO: implement the functionality
+        if message.content.strip() == dict_of_events['askbot']:
+            pass
+        elif message.content.strip() == dict_of_events['encourage']:
+            pass
+        elif message.content.strip().startswith(dict_of_events['weather']):
+            pass
+        elif message.content.strip().startswith(dict_of_events['find_item']):
+            pass
 
     @classmethod
     def return_on_editing(cls, sent_message: discord.Message, 

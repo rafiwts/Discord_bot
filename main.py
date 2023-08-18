@@ -1,14 +1,17 @@
 import discord
 
 import logging
-from typing import Coroutine
 
 from bot.client import DiscordBot
 from bot.session import Session
 from bot.server_events import ServerEvents
 from bot.users_commands import UserCommands
+from bot.view_lists import (dict_of_actions, 
+                            dict_of_events)
 from database.database_connection import create_tables
-from settings import CHANNEL_ID, GUILD, TOKEN
+from settings import (CHANNEL_ID, 
+                      GUILD, 
+                      TOKEN)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -29,8 +32,8 @@ create_tables()
 @bot.event
 async def on_ready() -> None:
       response_to_ready = ServerEvents.return_on_ready(bot, 
-                                                       CHANNEL_ID, 
-                                                       GUILD)
+                                                       GUILD, 
+                                                       CHANNEL_ID)
       await response_to_ready
       await bot.process_bot(bot,
                             GUILD)
@@ -48,8 +51,7 @@ async def on_member_join(member) -> None:
 @bot.event
 async def on_member_remove(member) -> None:
       response_to_removing = ServerEvents.return_on_removing(member,
-                                                             CHANNEL_ID,
-                                                             GUILD)
+                                                             CHANNEL_ID)
       await response_to_removing
       await bot.process_user(member,
                              GUILD)
@@ -86,20 +88,18 @@ async def on_member_unban(guild, user) -> None:
 
 @bot.event
 async def on_message(message: discord.Message) -> None:
-      #TODO: Think about a more efficient implementation of the list
-      list_of_events = ['$', '?', 'showevents', 'showcommands']
-      list_of_commands = ['!joined', '!start', '!session', '!end', '!users', 'square', '!scrabblepoints']
-
-
       if message.author == bot.user:
             return
       #TODO: if something is not a command, do not process it as a command - it accepts all inputs with ! larger than 1  
       elif message.content.startswith('!') and len(message.content) > 1:
             await bot.process_commands(message)
-      elif message.content.startswith(tuple(list_of_events)):
-            response_to_message = ServerEvents.return_on_message(message,
-                                                                 list_of_commands)
+      elif message.content.startswith(tuple(dict_of_actions.values())):
+            response_to_message = ServerEvents.return_on_message(message)
             await response_to_message
+            await bot.process_event(message)
+      elif message.content.startswith(tuple(dict_of_events.values())):
+            response_to_event = ServerEvents.return_on_event(message)
+            await response_to_event
             await bot.process_event(message)
       else:
             await bot.process_message(message)

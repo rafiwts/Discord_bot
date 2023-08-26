@@ -6,20 +6,20 @@ from database.models.base import DefaultDatabaseModel
 
 
 class DiscordUser(DefaultDatabaseModel):
-    discord_id = peewee.BigIntegerField()
+    discord_id = peewee.BigIntegerField(unique=True)
     username: str = peewee.CharField(max_length=50, 
                                      null=False,
                                      unique=True)
-    guildname: str = peewee.CharField(max_length=50)
+    guildname: str = peewee.CharField(max_length=50, null=False)
     created_at: int = peewee.DateTimeField(default=datetime.now())
     joined_at: int = peewee.DateTimeField(default=datetime.now())
     is_bot: bool = peewee.BooleanField(default=False, null=False)
-    is_admin: peewee.BooleanField = peewee.BooleanField(default=False, null = False)
-    banned: peewee.BooleanField = peewee.BooleanField(default=False, null = False)
+    is_admin: peewee.BooleanField = peewee.BooleanField(default=False, null=False)
+    banned: peewee.BooleanField = peewee.BooleanField(default=False, null=False)
 
     @classmethod
     def create_new_user(cls, discord_user: discord.Member,
-                             guildname: peewee.CharField,):
+                             guildname: peewee.CharField):
         return cls.create(discord_id=discord_user.id,
                           username=discord_user.name,
                           guildname=guildname,
@@ -29,11 +29,11 @@ class DiscordUser(DefaultDatabaseModel):
     def get_or_create_user(cls, sender: discord.Member):
         discord_user = cls.get_or_none(discord_id=sender.id)
         if discord_user is None:
-            discord_user =  cls.create_new_user(discord_id=sender.id,
-                                                username=sender.name,
-                                                guildname=sender.guild,
-                                                created_at=sender.created_at,
-                                                joined_at=sender.joined_at)
+            discord_user =  cls.create(discord_id=sender.id,
+                                       username=sender.name,
+                                       guildname=sender.guild,
+                                       created_at=sender.created_at,
+                                       joined_at=sender.joined_at)
 
             discord_user.save()
         

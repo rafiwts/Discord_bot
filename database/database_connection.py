@@ -10,3 +10,13 @@ def create_tables():
                                          Event, 
                                          Reaction,
                                          BotUser])
+            
+
+def drop_tables():
+      with psql_database:
+            psql_database.drop_tables([DiscordUser,
+                                       Message,
+                                       Command,
+                                       Event,
+                                       Reaction,
+                                       BotUser])

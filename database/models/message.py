@@ -9,7 +9,7 @@ from database.models.command import Command, DiscordUser
 
 
 class Message(DefaultDatabaseModel):
-    discord_id = peewee.BigIntegerField()
+    discord_id = peewee.BigIntegerField(unique=True)
     content: str = peewee.TextField(null=False)
     created_at: int = peewee.DateTimeField(default=datetime.now())
     edited_at: int = peewee.DateTimeField(null=True, default=None)

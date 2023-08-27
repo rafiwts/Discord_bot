@@ -14,6 +14,7 @@ from database.models import (
 )
 
 class TestUserTable:
+    #FIXME: how to save the whole for records 
     @pytest.mark.parametrize(
         "id, discord_id, username, guildname, created_at",
         [(1 ,1111, "Rafal", "Guildname", datetime.now()),
@@ -155,7 +156,7 @@ class TestUserTable:
 
             assert get_banned_user.banned == True
                 
-    def test_if_discord_id_is_unique(
+    def test_discord_id_unique_field(
         self,
         session,
         mock_discord_user
@@ -164,4 +165,148 @@ class TestUserTable:
             create_user_that_exists = DiscordUser.create(discord_id=mock_discord_user.discord_id,
                                                          username="New User",
                                                          guildname="New Guildname")  
+
             create_user_that_exists.save()        
+    
+    def test_username_unique_field(
+        self,
+        session,
+        mock_discord_user
+    ):
+        with pytest.raises(peewee.IntegrityError):
+            create_user_that_exists = DiscordUser.create(discord_id="2222",
+                                                         username=mock_discord_user.username,
+                                                         guildname="New Guildname")
+            
+            create_user_that_exists.save()
+
+    
+    class TestMessageTable:
+        @pytest.mark.parametrize(
+           "id, discord_id, content, created_at, user",
+            [(1, 1010, "First message", datetime.now(), 1),
+            (2, 2020, "Second message", datetime.now(), 2),
+            (3, 3030, "Third message", datetime.now(), 3),
+            (4, 4040, "Fourth message", datetime.now(), 4)]
+        )
+        def test_create_message_with_all_data(
+            self,
+            session,
+            mock_discord_users,
+            id,
+            discord_id,
+            content,
+            created_at,
+            user
+        ):
+            add_new_message = Message.create(id=id,
+                                             discord_id=discord_id,
+                                             content=content,
+                                             created_at=created_at,
+                                             user=user)
+            add_new_message.save()
+
+            assert add_new_message.id == id
+            assert add_new_message.discord_id == discord_id
+            assert add_new_message.content == content
+            assert add_new_message.created_at == created_at
+            assert add_new_message.user.id == user
+
+        def test_message_and_user_relation(
+            self,
+            session,
+            mock_time,
+            mock_discord_user
+        ):
+            add_new_message = Message.create(discord_id=1010,
+                                             content="New content",
+                                             created_at=mock_time,
+                                             user=2)
+            
+            assert add_new_message.user.id == mock_discord_user.id
+            assert add_new_message.user.discord_id == mock_discord_user.discord_id
+            assert add_new_message.user.username == mock_discord_user.username
+        
+        def test_edit_message_with_new_content(
+            self,
+            session,
+            mock_discord_user_and_message
+        ):
+            with patch('discord.Member', new_callable=Mock) as new_message:
+                current_time = datetime.now()
+                new_message.content = "New content"
+                new_message.edited_at = current_time
+
+                Message.edit_message(discord_id=1010,
+                                     edited_message=discord.Member)
+                
+                edited_message = Message.get(discord_id=1010)
+
+                assert edited_message.content == new_message.content
+                assert edited_message.edited_at == new_message.edited_at
+        
+        def test_edit_message_with_counter_increment(
+            self,
+            session,
+            mock_discord_user_and_message
+        ):
+            reaction_counter = 1
+
+            Message.edit_message(discord_id=1010,
+                                 reaction_counter=reaction_counter)
+                
+            edited_message = Message.get(discord_id=1010)
+
+            assert edited_message.reaction_counter == reaction_counter
+
+        def test_message_with_no_user_id(
+            self,
+            session,
+        ): 
+            with pytest.raises(peewee.IntegrityError):
+                Message.create(discord_id="1010",
+                               content="New content",
+                               user=1)
+                                                                
+        def test_message_with_no_command_id(
+            self,
+            session,
+            mock_discord_user
+        ):
+            new_message = Message.create(discord_id=1010,
+                                         content="New content",
+                                         user=mock_discord_user.id)
+            
+            assert new_message.user.id == mock_discord_user.id
+
+            with pytest.raises(peewee.IntegrityError):
+                Message.create(discord_id=2020,
+                               content="Another content",
+                               user=mock_discord_user.id,
+                               command=1)
+                
+        class TestCommandTable:
+            @pytest.mark.parametrize(
+                "id, content, user",
+                [(1, "!firstcommand", 1),
+                (2, "!secondcommand", 2),
+                (3, "!thirdcommand", 3),
+                (4, "!fourthcommand", 4)]
+            )
+            def test_create_command_with_all_data(
+                self,
+                session,
+                mock_discord_users,
+                id,
+                content,
+                user
+            ):
+                add_command = Command.create(id=id,
+                                             content=content,
+                                             user=user)
+                
+                add_command.save()
+
+                assert add_command.id == id
+                assert add_command.content == content
+                assert add_command.user.id == user

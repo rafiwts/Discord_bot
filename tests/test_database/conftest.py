@@ -45,10 +45,68 @@ def mock_time():
 @pytest.fixture
 def mock_discord_user(mock_time):
     return DiscordUser.create(
-        id = 2,
+        id=2,
         discord_id=1111,
         username="Rafiwts",
         guildname="Gildia",
         created_at=mock_time,
         joined_at=mock_time
+    )
+
+
+@pytest.fixture
+def mock_discord_users(mock_time):   
+    DiscordUser.create(
+        id=1,
+        discord_id=1111,
+        username="User one",
+        guildname="Gildia",
+        created_at=mock_time,
+        joined_at=mock_time
+    )
+
+    DiscordUser.create(
+        id=2,
+        discord_id=2222,
+        username="User two",
+        guildname="Gildia",
+        created_at=mock_time,
+        joined_at=mock_time
+    )
+
+    DiscordUser.create(
+        id=3,
+        discord_id=3333,
+        username="User three",
+        guildname="Gildia",
+        created_at=mock_time,
+        joined_at=mock_time
+    )
+
+    DiscordUser.create(
+        id=4,
+        discord_id=4444,
+        username="User four",
+        guildname="Gildia",
+        created_at=mock_time,
+        joined_at=mock_time
+    )
+
+
+@pytest.fixture
+def mock_discord_user_and_message(mock_time):
+    DiscordUser.create(
+        id=1,
+        discord_id=1111,
+        username="Username",
+        guildname="Guildname",
+        create_at=mock_time,
+        joined_at=mock_time
+    )
+
+    Message.create(
+        discord_id=1010,
+        content="I wrote a message",
+        created_at=mock_time,
+        user=1
     )

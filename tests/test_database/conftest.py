@@ -44,7 +44,7 @@ def mock_time():
 
 @pytest.fixture
 def mock_discord_user(mock_time):
-    return DiscordUser.create(
+    discord_user = DiscordUser.create(
         id=2,
         discord_id=1111,
         username="Rafiwts",
@@ -52,6 +52,8 @@ def mock_discord_user(mock_time):
         created_at=mock_time,
         joined_at=mock_time
     )
+
+    return discord_user
 
 
 @pytest.fixture
@@ -110,3 +112,25 @@ def mock_discord_user_and_message(mock_time):
         created_at=mock_time,
         user=1
     )
+
+
+@pytest.fixture
+def mock_discord_command(mock_discord_user):
+    new_command = Command.create(
+        content="!newcommand",
+        user=mock_discord_user.id
+    )
+
+    return new_command
+
+
+@pytest.fixture
+def mock_bot_user(mock_discord_user):
+    new_bot = BotUser.create(
+        discord_id=1011,
+        botname="Bot1",
+        command_prefix="!",
+        owner=mock_discord_user.id
+    )
+
+    return new_bot

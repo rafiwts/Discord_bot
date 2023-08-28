@@ -6,12 +6,13 @@ from database.models import DiscordUser
 
 
 class BotUser(DefaultDatabaseModel):
-    discord_id: peewee.BigIntegerField = peewee.BigIntegerField()
+    discord_id: peewee.BigIntegerField = peewee.BigIntegerField(unique=True)
     botname: peewee.CharField = peewee.CharField(max_length=50, 
                                                  null=False,
                                                  unique=True)
-    command_prefix: peewee.CharField = peewee.CharField(max_length=50)
-    owner_id: peewee.ForeignKeyField = peewee.ForeignKeyField(DiscordUser,
+    command_prefix: peewee.CharField = peewee.CharField(max_length=50,
+                                                        null=False)
+    owner: peewee.ForeignKeyField = peewee.ForeignKeyField(DiscordUser,
                                                               backref='owner',
                                                               on_delete='CASCADE')
     

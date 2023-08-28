@@ -9,8 +9,8 @@ from database.models import DiscordUser
 
 class Command(DefaultDatabaseModel):
     content: str = peewee.TextField(null=False)
-    first_created: int = peewee.DateTimeField(default=datetime.now(), null=False)
-    last_updated: int = peewee.DateTimeField(default=datetime.now(), null=True)
+    created_at: int = peewee.DateTimeField(default=datetime.now(), null=False)
+    edited_at: int = peewee.DateTimeField(null=True)
     user: int = peewee.ForeignKeyField(DiscordUser, 
                                        backref='commands',
                                        on_delete='CASCADE')
@@ -20,14 +20,14 @@ class Command(DefaultDatabaseModel):
     def create_new_command(cls, message: discord.Message, 
                                 user: peewee.ForeignKeyField):
         return cls.create(content=message.content,
-                          first_created=message.created_at,
+                          created_at=message.created_at,
                           user=user)
     
     @classmethod
     def increment_counter(cls, command_counter: peewee.IntegerField,
                                message: discord.Message,
                                discord_user: peewee.ForeignKeyField):
-        return cls.update(last_updated=message.created_at,
+        return cls.update(edited_at=message.created_at,
                           command_counter=command_counter)\
                           .where((cls.content==message.content) &
                                  (cls.user==discord_user))

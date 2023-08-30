@@ -115,6 +115,37 @@ def mock_discord_user_and_message(mock_time):
 
 
 @pytest.fixture
+def mock_discord_messages(mock_time):
+        Message.create(
+        discord_id=1010,
+        content="message1",
+        created_at=mock_time,
+        user=2
+    )
+
+        Message.create(
+        discord_id=2020,
+        content="message2",
+        created_at=mock_time,
+        user=3
+    )
+
+        Message.create(
+        discord_id=3030,
+        content="message3",
+        created_at=mock_time,
+        user=4
+    )
+
+        Message.create(
+        discord_id=4040,
+        content="message4",
+        created_at=mock_time,
+        user=1
+    )
+
+
+@pytest.fixture
 def mock_discord_command(mock_discord_user):
     new_command = Command.create(
         content="!newcommand",

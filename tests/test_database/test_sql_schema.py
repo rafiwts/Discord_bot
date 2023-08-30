@@ -557,3 +557,48 @@ class TestUserTable:
                                              owner=1)
                     
                     new_bot.save()
+                
+
+            class TestReactionTable:
+                @pytest.mark.parametrize(
+                    "user_from, user_to, message",
+                    [(1, 2, 1),
+                    (2, 3, 2),
+                    (3, 4, 3),
+                    (4, 1, 4)]
+                )
+                def test_create_message_with_all_data(
+                    self,
+                    user_from,
+                    user_to,
+                    message,
+                    session,
+                    mock_discord_users,
+                    mock_discord_messages,
+                    mock_time
+                ):
+                    new_reaction = Reaction.create(user_from=user_from,
+                                                   user_to=user_to,
+                                                   message=message,
+                                                   added_at=mock_time,
+                                                   edited_at=mock_time)
+                    
+                    new_reaction.save()
+
+                    assert new_reaction.user_from.id == user_from
+                    assert new_reaction.user_to.id == user_to
+                    assert new_reaction.message.id == message
+            
+                def test_create_new_reaction(
+                    self,
+                    session,
+                    mock_discord_user_and_message
+                ):
+                    current_user = DiscordUser.get(discord_id=1111)
+                    current_message = Message.get(discord_id=1010)
+
+                    new_reaction = Reaction.create_new_reaction(current_user.id,
+                                                                current_message)
+                    
+                    assert new_reaction.user_from.id == current_user.id
+                    assert new_reaction.message.id == current_message.id

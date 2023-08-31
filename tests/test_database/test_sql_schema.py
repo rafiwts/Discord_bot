@@ -185,330 +185,324 @@ class TestUserTable:
 
             create_user_that_exists.save()
 
-    class TestMessageTable:
-        @pytest.mark.parametrize(
-            "id, discord_id, content, created_at, user",
-            [
-                (1, 1010, "First message", datetime.now(), 1),
-                (2, 2020, "Second message", datetime.now(), 2),
-                (3, 3030, "Third message", datetime.now(), 3),
-                (4, 4040, "Fourth message", datetime.now(), 4),
-            ],
+
+class TestMessageTable:
+    @pytest.mark.parametrize(
+        "id, discord_id, content, created_at, user",
+        [
+            (1, 1010, "First message", datetime.now(), 1),
+            (2, 2020, "Second message", datetime.now(), 2),
+            (3, 3030, "Third message", datetime.now(), 3),
+            (4, 4040, "Fourth message", datetime.now(), 4),
+        ],
+    )
+    def test_create_message_with_all_data(
+        self, session, mock_discord_users, id, discord_id, content, created_at, user
+    ):
+        add_new_message = Message.create(
+            id=id,
+            discord_id=discord_id,
+            content=content,
+            created_at=created_at,
+            user=user,
         )
-        def test_create_message_with_all_data(
-            self, session, mock_discord_users, id, discord_id, content, created_at, user
-        ):
-            add_new_message = Message.create(
-                id=id,
-                discord_id=discord_id,
-                content=content,
-                created_at=created_at,
-                user=user,
+
+        add_new_message.save()
+
+        assert add_new_message.id == id
+        assert add_new_message.discord_id == discord_id
+        assert add_new_message.content == content
+        assert add_new_message.created_at == created_at
+        assert add_new_message.user.id == user
+
+    def test_create_new_message_with_command(
+        self, session, mock_time, mock_discord_user, mock_discord_command
+    ):
+        with patch("discord.Message", new_callable=Mock) as message:
+            message.id = 1
+            message.content = "content"
+            message.created_at = mock_time
+
+            new_message = Message.create_new_message(
+                discord.Message, mock_discord_user.id, mock_discord_command.id
             )
 
-            add_new_message.save()
+            new_message.save()
 
-            assert add_new_message.id == id
-            assert add_new_message.discord_id == discord_id
-            assert add_new_message.content == content
-            assert add_new_message.created_at == created_at
-            assert add_new_message.user.id == user
+            assert new_message.id == message.id
+            assert new_message.content == message.content
+            assert new_message.created_at == mock_time
+            assert new_message.user.id == mock_discord_user.id
+            assert new_message.command.id == mock_discord_command.id
 
-        def test_create_new_message_with_command(
-            self, session, mock_time, mock_discord_user, mock_discord_command
-        ):
-            with patch("discord.Message", new_callable=Mock) as message:
-                message.id = 1
-                message.content = "content"
-                message.created_at = mock_time
+    def test_message_and_user_relation(self, session, mock_time, mock_discord_user):
+        add_new_message = Message.create(
+            discord_id=1010, content="New content", created_at=mock_time, user=2
+        )
 
-                new_message = Message.create_new_message(
-                    discord.Message, mock_discord_user.id, mock_discord_command.id
-                )
+        assert add_new_message.user.id == mock_discord_user.id
+        assert add_new_message.user.discord_id == mock_discord_user.discord_id
+        assert add_new_message.user.username == mock_discord_user.username
 
-                new_message.save()
+    def test_edit_message_with_new_content(
+        self, session, mock_discord_user_and_message
+    ):
+        with patch("discord.Member", new_callable=Mock) as new_message:
+            current_time = datetime.now()
+            new_message.content = "New content"
+            new_message.edited_at = current_time
 
-                assert new_message.id == message.id
-                assert new_message.content == message.content
-                assert new_message.created_at == mock_time
-                assert new_message.user.id == mock_discord_user.id
-                assert new_message.command.id == mock_discord_command.id
-
-        def test_message_and_user_relation(self, session, mock_time, mock_discord_user):
-            add_new_message = Message.create(
-                discord_id=1010, content="New content", created_at=mock_time, user=2
-            )
-
-            assert add_new_message.user.id == mock_discord_user.id
-            assert add_new_message.user.discord_id == mock_discord_user.discord_id
-            assert add_new_message.user.username == mock_discord_user.username
-
-        def test_edit_message_with_new_content(
-            self, session, mock_discord_user_and_message
-        ):
-            with patch("discord.Member", new_callable=Mock) as new_message:
-                current_time = datetime.now()
-                new_message.content = "New content"
-                new_message.edited_at = current_time
-
-                Message.edit_message(discord_id=1010, edited_message=discord.Member)
-
-                edited_message = Message.get(discord_id=1010)
-
-                assert edited_message.content == new_message.content
-                assert edited_message.edited_at == new_message.edited_at
-
-        def test_edit_message_with_counter_increment(
-            self, session, mock_discord_user_and_message
-        ):
-            reaction_counter = 1
-
-            Message.edit_message(discord_id=1010, reaction_counter=reaction_counter)
+            Message.edit_message(discord_id=1010, edited_message=discord.Member)
 
             edited_message = Message.get(discord_id=1010)
 
-            assert edited_message.reaction_counter == reaction_counter
+            assert edited_message.content == new_message.content
+            assert edited_message.edited_at == new_message.edited_at
 
-        def test_discord_id_unique_field(self, session, mock_discord_command):
-            with pytest.raises(peewee.IntegrityError):
-                Message.create(discord_id=1111, content="New content", user=1)
+    def test_edit_message_with_counter_increment(
+        self, session, mock_discord_user_and_message
+    ):
+        reaction_counter = 1
 
-        def test_message_with_fake_user_id(
-            self,
-            session,
-        ):
-            with pytest.raises(peewee.IntegrityError):
-                Message.create(discord_id="1010", content="New content", user=1)
+        Message.edit_message(discord_id=1010, reaction_counter=reaction_counter)
 
-        def test_message_with_fake_command_id(self, session, mock_discord_user):
-            new_message = Message.create(
-                discord_id=1010, content="New content", user=mock_discord_user.id
+        edited_message = Message.get(discord_id=1010)
+
+        assert edited_message.reaction_counter == reaction_counter
+
+    def test_discord_id_unique_field(self, session, mock_discord_command):
+        with pytest.raises(peewee.IntegrityError):
+            Message.create(discord_id=1111, content="New content", user=1)
+
+    def test_message_with_fake_user_id(
+        self,
+        session,
+    ):
+        with pytest.raises(peewee.IntegrityError):
+            Message.create(discord_id="1010", content="New content", user=1)
+
+    def test_message_with_fake_command_id(self, session, mock_discord_user):
+        new_message = Message.create(
+            discord_id=1010, content="New content", user=mock_discord_user.id
+        )
+
+        assert new_message.user.id == mock_discord_user.id
+
+        with pytest.raises(peewee.IntegrityError):
+            Message.create(
+                discord_id=2020,
+                content="Another content",
+                user=mock_discord_user.id,
+                command=1,
             )
 
-            assert new_message.user.id == mock_discord_user.id
 
-            with pytest.raises(peewee.IntegrityError):
-                Message.create(
-                    discord_id=2020,
-                    content="Another content",
-                    user=mock_discord_user.id,
-                    command=1,
-                )
+class TestCommandTable:
+    @pytest.mark.parametrize(
+        "id, content, user",
+        [
+            (1, "!firstcommand", 1),
+            (2, "!secondcommand", 2),
+            (3, "!thirdcommand", 3),
+            (4, "!fourthcommand", 4),
+        ],
+    )
+    def test_create_command_with_all_data(
+        self, session, mock_discord_users, id, content, user
+    ):
+        add_command = Command.create(id=id, content=content, user=user)
 
-        class TestCommandTable:
-            @pytest.mark.parametrize(
-                "id, content, user",
-                [
-                    (1, "!firstcommand", 1),
-                    (2, "!secondcommand", 2),
-                    (3, "!thirdcommand", 3),
-                    (4, "!fourthcommand", 4),
-                ],
+        add_command.save()
+
+        assert add_command.id == id
+        assert add_command.content == content
+        assert add_command.user.id == user
+
+    def test_create_new_command(self, session, mock_time, mock_discord_user):
+        with patch("discord.Message", new_callable=Mock) as command:
+            command.content = "!command"
+            command.created_at = mock_time
+
+            new_command = Command.create_new_command(
+                discord.Message, mock_discord_user.id
             )
-            def test_create_command_with_all_data(
-                self, session, mock_discord_users, id, content, user
-            ):
-                add_command = Command.create(id=id, content=content, user=user)
 
-                add_command.save()
+            new_command.save()
 
-                assert add_command.id == id
-                assert add_command.content == content
-                assert add_command.user.id == user
+            assert new_command.user.id == mock_discord_user.id
+            assert new_command.content == command.content
+            assert new_command.created_at == command.created_at
 
-            def test_create_new_command(self, session, mock_time, mock_discord_user):
-                with patch("discord.Message", new_callable=Mock) as command:
-                    command.content = "!command"
-                    command.created_at = mock_time
+    def test_create_command_and_message(self, session, mock_time, mock_discord_user):
+        new_command = Command.create(content="!newcommand", user=mock_discord_user.id)
 
-                    new_command = Command.create_new_command(
-                        discord.Message, mock_discord_user.id
-                    )
+        new_command.save()
 
-                    new_command.save()
+        new_message = Message.create(
+            discord_id=1010,
+            content=new_command.content,
+            created_at=mock_time,
+            user=mock_discord_user.id,
+            command=new_command.id,
+        )
 
-                    assert new_command.user.id == mock_discord_user.id
-                    assert new_command.content == command.content
-                    assert new_command.created_at == command.created_at
+        assert new_message.command.id == new_command.id
 
-            def test_create_command_and_message(
-                self, session, mock_time, mock_discord_user
-            ):
-                new_command = Command.create(
-                    content="!newcommand", user=mock_discord_user.id
-                )
+    def test_edit_command_with_increment_counter_by_one(
+        self, session, mock_discord_command, mock_time
+    ):
+        with patch("discord.Message", new_callable=Mock) as new_command:
+            new_command.created_at = mock_time
+            new_command.content = mock_discord_command.content
+            counter = mock_discord_command.command_counter + 1
 
-                new_command.save()
-
-                new_message = Message.create(
-                    discord_id=1010,
-                    content=new_command.content,
-                    created_at=mock_time,
-                    user=mock_discord_user.id,
-                    command=new_command.id,
-                )
-
-                assert new_message.command.id == new_command.id
-
-            def test_edit_command_with_increment_counter_by_one(
-                self, session, mock_discord_command, mock_time
-            ):
-                with patch("discord.Message", new_callable=Mock) as new_command:
-                    new_command.created_at = mock_time
-                    new_command.content = mock_discord_command.content
-                    counter = mock_discord_command.command_counter + 1
-
-                    increment_command_counter = Command.increment_counter(
-                        counter, discord.Message, mock_discord_command.user.id
-                    )
-
-                    increment_command_counter.execute()
-
-                    updated_command = Command.get(id=mock_discord_command.id)
-
-                    assert updated_command.command_counter == counter
-
-            def test_command_with_fake_user_id(self, session):
-                with pytest.raises(peewee.IntegrityError):
-                    Command.create(content="!newcommand", user=1)
-
-        class TestBotTable:
-            @pytest.mark.parametrize(
-                "id, discord_id, botname, prefix, owner",
-                [
-                    (1, 1011, "Bot1", "!", 1),
-                    (2, 2022, "Bot2", "?", 2),
-                    (3, 3033, "Bot3", "#", 3),
-                    (4, 4044, "Bot4", "$", 4),
-                ],
+            increment_command_counter = Command.increment_counter(
+                counter, discord.Message, mock_discord_command.user.id
             )
-            def test_create_bot_with_all_data(
-                self,
-                session,
-                mock_discord_users,
-                id,
-                discord_id,
-                botname,
-                prefix,
-                owner,
-            ):
-                new_bot = BotUser.create(
-                    id=id,
-                    discord_id=discord_id,
-                    botname=botname,
-                    command_prefix=prefix,
-                    owner=owner,
-                )
 
-                new_bot.save()
+            increment_command_counter.execute()
 
-                assert new_bot.id == id
-                assert new_bot.discord_id == discord_id
-                assert new_bot.owner.id == owner
+            updated_command = Command.get(id=mock_discord_command.id)
 
-            def test_create_new_bot(self, session, mock_discord_user):
-                with patch("discord.ext.commands.Bot", new_callable=Mock) as bot:
-                    bot.application_id = 1011
-                    bot.user = "Bot"
-                    bot.command_prefix = "!"
+            assert updated_command.command_counter == counter
 
-                    new_bot = BotUser.create_new_bot(
-                        discord.ext.commands.Bot, mock_discord_user.id
-                    )
+    def test_command_with_fake_user_id(self, session):
+        with pytest.raises(peewee.IntegrityError):
+            Command.create(content="!newcommand", user=1)
 
-                    new_bot.save()
 
-                    assert new_bot.discord_id == bot.application_id
-                    assert new_bot.botname == bot.user
-                    assert new_bot.owner.id == mock_discord_user.id
+class TestBotTable:
+    @pytest.mark.parametrize(
+        "id, discord_id, botname, prefix, owner",
+        [
+            (1, 1011, "Bot1", "!", 1),
+            (2, 2022, "Bot2", "?", 2),
+            (3, 3033, "Bot3", "#", 3),
+            (4, 4044, "Bot4", "$", 4),
+        ],
+    )
+    def test_create_bot_with_all_data(
+        self,
+        session,
+        mock_discord_users,
+        id,
+        discord_id,
+        botname,
+        prefix,
+        owner,
+    ):
+        new_bot = BotUser.create(
+            id=id,
+            discord_id=discord_id,
+            botname=botname,
+            command_prefix=prefix,
+            owner=owner,
+        )
 
-            def test_check_user_or_bot(self, session, mock_discord_user, mock_bot_user):
-                # check discord user
-                get_discord_user = BotUser.check_user_or_bot(
-                    mock_discord_user.discord_id
-                )
-                print(mock_bot_user.discord_id)
+        new_bot.save()
 
-                assert get_discord_user.discord_id == mock_discord_user.discord_id
+        assert new_bot.id == id
+        assert new_bot.discord_id == discord_id
+        assert new_bot.owner.id == owner
 
-                # check bot user
-                get_bot_user = BotUser.check_user_or_bot(mock_bot_user.discord_id)
+    def test_create_new_bot(self, session, mock_discord_user):
+        with patch("discord.ext.commands.Bot", new_callable=Mock) as bot:
+            bot.application_id = 1011
+            bot.user = "Bot"
+            bot.command_prefix = "!"
 
-                assert get_bot_user.discord_id == mock_bot_user.discord_id
-                assert get_bot_user.owner.id == mock_discord_user.id
+            new_bot = BotUser.create_new_bot(
+                discord.ext.commands.Bot, mock_discord_user.id
+            )
 
-            def test_bot_unique_fields(self, session, mock_bot_user):
-                # discord_id field
-                with pytest.raises(peewee.IntegrityError):
-                    new_bot = BotUser.create(
-                        discord_id=mock_bot_user.discord_id,
-                        botname="AnotherBot",
-                        command_prefix="!",
-                        owner=mock_bot_user.id,
-                    )
+            new_bot.save()
 
-                    new_bot.save()
+            assert new_bot.discord_id == bot.application_id
+            assert new_bot.botname == bot.user
+            assert new_bot.owner.id == mock_discord_user.id
 
-                # botname field
-                with pytest.raises(peewee.IntegrityError):
-                    new_bot = BotUser.create(
-                        discord_id=2022,
-                        botname=mock_bot_user.botname,
-                        command_prefix="!",
-                        owner=mock_bot_user.id,
-                    )
+    def test_check_user_or_bot(self, session, mock_discord_user, mock_bot_user):
+        # check discord user
+        get_discord_user = BotUser.check_user_or_bot(mock_discord_user.discord_id)
+        print(mock_bot_user.discord_id)
 
-                    new_bot.save()
+        assert get_discord_user.discord_id == mock_discord_user.discord_id
 
-                # owner field
-                with pytest.raises(peewee.IntegrityError):
-                    new_bot = BotUser.create(
-                        discord_id=2022,
-                        botname="AnoterBot",
-                        command_prefix="!",
-                        owner=1,
-                    )
+        # check bot user
+        get_bot_user = BotUser.check_user_or_bot(mock_bot_user.discord_id)
 
-                    new_bot.save()
+        assert get_bot_user.discord_id == mock_bot_user.discord_id
+        assert get_bot_user.owner.id == mock_discord_user.id
 
-            class TestReactionTable:
-                @pytest.mark.parametrize(
-                    "user_from, user_to, message",
-                    [(1, 2, 1), (2, 3, 2), (3, 4, 3), (4, 1, 4)],
-                )
-                def test_create_message_with_all_data(
-                    self,
-                    user_from,
-                    user_to,
-                    message,
-                    session,
-                    mock_discord_users,
-                    mock_discord_messages,
-                    mock_time,
-                ):
-                    new_reaction = Reaction.create(
-                        user_from=user_from,
-                        user_to=user_to,
-                        message=message,
-                        added_at=mock_time,
-                        edited_at=mock_time,
-                    )
+    def test_bot_unique_fields(self, session, mock_bot_user):
+        # discord_id field
+        with pytest.raises(peewee.IntegrityError):
+            new_bot = BotUser.create(
+                discord_id=mock_bot_user.discord_id,
+                botname="AnotherBot",
+                command_prefix="!",
+                owner=mock_bot_user.id,
+            )
 
-                    new_reaction.save()
+            new_bot.save()
 
-                    assert new_reaction.user_from.id == user_from
-                    assert new_reaction.user_to.id == user_to
-                    assert new_reaction.message.id == message
+        # botname field
+        with pytest.raises(peewee.IntegrityError):
+            new_bot = BotUser.create(
+                discord_id=2022,
+                botname=mock_bot_user.botname,
+                command_prefix="!",
+                owner=mock_bot_user.id,
+            )
 
-                def test_create_new_reaction(
-                    self, session, mock_discord_user_and_message
-                ):
-                    current_user = DiscordUser.get(discord_id=1111)
-                    current_message = Message.get(discord_id=1010)
+            new_bot.save()
 
-                    new_reaction = Reaction.create_new_reaction(
-                        current_user.id, current_message
-                    )
+        # owner field
+        with pytest.raises(peewee.IntegrityError):
+            new_bot = BotUser.create(
+                discord_id=2022,
+                botname="AnoterBot",
+                command_prefix="!",
+                owner=1,
+            )
 
-                    assert new_reaction.user_from.id == current_user.id
-                    assert new_reaction.message.id == current_message.id
+            new_bot.save()
+
+
+class TestReactionTable:
+    @pytest.mark.parametrize(
+        "user_from, user_to, message",
+        [(1, 2, 1), (2, 3, 2), (3, 4, 3), (4, 1, 4)],
+    )
+    def test_create_message_with_all_data(
+        self,
+        user_from,
+        user_to,
+        message,
+        session,
+        mock_discord_users,
+        mock_discord_messages,
+        mock_time,
+    ):
+        new_reaction = Reaction.create(
+            user_from=user_from,
+            user_to=user_to,
+            message=message,
+            added_at=mock_time,
+            edited_at=mock_time,
+        )
+
+        new_reaction.save()
+
+        assert new_reaction.user_from.id == user_from
+        assert new_reaction.user_to.id == user_to
+        assert new_reaction.message.id == message
+
+    def test_create_new_reaction(self, session, mock_discord_user_and_message):
+        current_user = DiscordUser.get(discord_id=1111)
+        current_message = Message.get(discord_id=1010)
+
+        new_reaction = Reaction.create_new_reaction(current_user.id, current_message)
+
+        assert new_reaction.user_from.id == current_user.id
+        assert new_reaction.message.id == current_message.id

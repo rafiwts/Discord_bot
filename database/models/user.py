@@ -6,12 +6,14 @@ from database.models.base import DefaultDatabaseModel
 
 
 class DiscordUser(DefaultDatabaseModel):
-    discord_id = peewee.BigIntegerField(unique=True)
-    username: str = peewee.CharField(max_length=50, null=False, unique=True)
-    guildname: str = peewee.CharField(max_length=50, null=False)
-    created_at: int = peewee.DateTimeField(default=datetime.now())
-    joined_at: int = peewee.DateTimeField(default=datetime.now())
-    is_bot: bool = peewee.BooleanField(default=False, null=False)
+    discord_id: peewee.BigIntegerField = peewee.BigIntegerField(unique=True)
+    username: peewee.CharField = peewee.CharField(
+        max_length=50, null=False, unique=True
+    )
+    guildname: peewee.CharField = peewee.CharField(max_length=50, null=False)
+    created_at: peewee.DateTimeField = peewee.DateTimeField(default=datetime.now())
+    joined_at: peewee.DateTimeField = peewee.DateTimeField(default=datetime.now())
+    is_bot: peewee.BooleanField = peewee.BooleanField(default=False, null=False)
     is_admin: peewee.BooleanField = peewee.BooleanField(default=False, null=False)
     banned: peewee.BooleanField = peewee.BooleanField(default=False, null=False)
 

@@ -8,13 +8,15 @@ from database.models import DiscordUser
 
 
 class Command(DefaultDatabaseModel):
-    content: str = peewee.TextField(null=False)
-    created_at: int = peewee.DateTimeField(default=datetime.now(), null=False)
-    edited_at: int = peewee.DateTimeField(null=True)
-    user: int = peewee.ForeignKeyField(
+    content: peewee.TextField = peewee.TextField(null=False)
+    created_at: peewee.DateTimeField = peewee.DateTimeField(
+        default=datetime.now(), null=False
+    )
+    edited_at: peewee.DateTimeField = peewee.DateTimeField(null=True)
+    user: peewee.ForeignKeyField = peewee.ForeignKeyField(
         DiscordUser, backref="commands", on_delete="CASCADE"
     )
-    command_counter: int = peewee.IntegerField(default=1, null=False)
+    command_counter: peewee.IntegerField = peewee.IntegerField(default=1, null=False)
 
     @classmethod
     def create_new_command(cls, message: discord.Message, user: peewee.ForeignKeyField):

@@ -10,17 +10,17 @@ from database.models.command import Command, DiscordUser
 
 
 class Message(DefaultDatabaseModel):
-    discord_id = peewee.BigIntegerField(unique=True)
-    content: str = peewee.TextField(null=False)
-    created_at: int = peewee.DateTimeField(default=datetime.now())
-    edited_at: int = peewee.DateTimeField(null=True, default=None)
-    user: int = peewee.ForeignKeyField(
+    discord_id: peewee.BigIntegerField = peewee.BigIntegerField(unique=True)
+    content: peewee.TextField = peewee.TextField(null=False)
+    created_at: peewee.DateTimeField = peewee.DateTimeField(default=datetime.now())
+    edited_at: peewee.DateTimeField = peewee.DateTimeField(null=True, default=None)
+    user: peewee.ForeignKeyField = peewee.ForeignKeyField(
         DiscordUser, backref="messages", on_delete="CASCADE"
     )
-    command: int = peewee.ForeignKeyField(
+    command: peewee.ForeignKeyField = peewee.ForeignKeyField(
         Command, backref="messages", on_delete="SET NULL", null=True
     )
-    reaction_counter: int = peewee.IntegerField(default=0)
+    reaction_counter: peewee.IntegerField = peewee.IntegerField(default=0)
 
     @classmethod
     def create_new_message(

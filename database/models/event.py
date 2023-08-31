@@ -7,20 +7,25 @@ from database.models import DiscordUser
 
 
 class Event(DefaultDatabaseModel):
-    name: str = peewee.CharField()
-    created_at: int = peewee.DateTimeField(default=datetime.now())
-    user: int = peewee.ForeignKeyField(
+    content: peewee.CharField = peewee.CharField(null=True)
+    created_at: peewee.DateTimeField = peewee.DateTimeField(default=datetime.now())
+    user: peewee.ForeignKeyField = peewee.ForeignKeyField(
         DiscordUser, backref="events", on_delete="CASCADE"
     )
-    counter: int = peewee.IntegerField(default=1)
+    counter: peewee.IntegerField = peewee.IntegerField(default=1)
 
     @classmethod
     def create_new_event(
         cls, user: peewee.ForeignKeyField, sent_message: discord.Message = None
     ):
-        return cls.create(
-            name=sent_message.content, cteated_at=sent_message.created_at, user=user
-        )
+        if sent_message:
+            return cls.create(
+                content=sent_message.content,
+                created_at=sent_message.created_at,
+                user=user,
+            )
+
+        return cls.create(user=user)
 
     @classmethod
     def increment_counter(
@@ -30,7 +35,7 @@ class Event(DefaultDatabaseModel):
         counter: peewee.IntegerField,
     ):
         return cls.update(counter=counter).where(
-            (cls.name == sent_message.content) & (cls.user == user)
+            (cls.content == sent_message.content) & (cls.user == user)
         )
 
     def __str__(self) -> str:

@@ -5,20 +5,15 @@ from datetime import datetime
 from unittest.mock import Mock
 
 import settings
-from database.models import (
-            DiscordUser,
-            Event,
-            Reaction,
-            Message,
-            BotUser,
-            Command
-)
+from database.models import DiscordUser, Event, Reaction, Message, BotUser, Command
 
-postgres_db = peewee.PostgresqlDatabase(settings.DATABASE_NAME_TEST,
-                                        user=settings.USER_NAME,
-                                        password=settings.PASSWORD,
-                                        host=settings.HOST,
-                                        port=settings.PORT)
+postgres_db = peewee.PostgresqlDatabase(
+    settings.DATABASE_NAME_TEST,
+    user=settings.USER_NAME,
+    password=settings.PASSWORD,
+    host=settings.HOST,
+    port=settings.PORT,
+)
 
 
 MODELS = [DiscordUser, Event, Reaction, Message, BotUser, Command]
@@ -50,21 +45,21 @@ def mock_discord_user(mock_time):
         username="Rafiwts",
         guildname="Gildia",
         created_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
     return discord_user
 
 
 @pytest.fixture
-def mock_discord_users(mock_time):   
+def mock_discord_users(mock_time):
     DiscordUser.create(
         id=1,
         discord_id=1111,
         username="User one",
         guildname="Gildia",
         created_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
     DiscordUser.create(
@@ -73,7 +68,7 @@ def mock_discord_users(mock_time):
         username="User two",
         guildname="Gildia",
         created_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
     DiscordUser.create(
@@ -82,7 +77,7 @@ def mock_discord_users(mock_time):
         username="User three",
         guildname="Gildia",
         created_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
     DiscordUser.create(
@@ -91,7 +86,7 @@ def mock_discord_users(mock_time):
         username="User four",
         guildname="Gildia",
         created_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
 
@@ -103,54 +98,28 @@ def mock_discord_user_and_message(mock_time):
         username="Username",
         guildname="Guildname",
         create_at=mock_time,
-        joined_at=mock_time
+        joined_at=mock_time,
     )
 
     Message.create(
-        discord_id=1010,
-        content="I wrote a message",
-        created_at=mock_time,
-        user=1
+        discord_id=1010, content="I wrote a message", created_at=mock_time, user=1
     )
 
 
 @pytest.fixture
 def mock_discord_messages(mock_time):
-        Message.create(
-        discord_id=1010,
-        content="message1",
-        created_at=mock_time,
-        user=2
-    )
+    Message.create(discord_id=1010, content="message1", created_at=mock_time, user=2)
 
-        Message.create(
-        discord_id=2020,
-        content="message2",
-        created_at=mock_time,
-        user=3
-    )
+    Message.create(discord_id=2020, content="message2", created_at=mock_time, user=3)
 
-        Message.create(
-        discord_id=3030,
-        content="message3",
-        created_at=mock_time,
-        user=4
-    )
+    Message.create(discord_id=3030, content="message3", created_at=mock_time, user=4)
 
-        Message.create(
-        discord_id=4040,
-        content="message4",
-        created_at=mock_time,
-        user=1
-    )
+    Message.create(discord_id=4040, content="message4", created_at=mock_time, user=1)
 
 
 @pytest.fixture
 def mock_discord_command(mock_discord_user):
-    new_command = Command.create(
-        content="!newcommand",
-        user=mock_discord_user.id
-    )
+    new_command = Command.create(content="!newcommand", user=mock_discord_user.id)
 
     return new_command
 
@@ -158,10 +127,7 @@ def mock_discord_command(mock_discord_user):
 @pytest.fixture
 def mock_bot_user(mock_discord_user):
     new_bot = BotUser.create(
-        discord_id=1011,
-        botname="Bot1",
-        command_prefix="!",
-        owner=mock_discord_user.id
+        discord_id=1011, botname="Bot1", command_prefix="!", owner=mock_discord_user.id
     )
 
     return new_bot

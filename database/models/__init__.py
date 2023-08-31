@@ -5,11 +5,4 @@ from database.models.event import Event
 from database.models.reaction import Reaction
 from database.models.bot import BotUser
 
-__all__ = [
-    "DiscordUser",
-    'Message',
-    'Command',
-    'Event',
-    'Reaction',
-    'BotUser'
-]
+__all__ = ["DiscordUser", "Message", "Command", "Event", "Reaction", "BotUser"]

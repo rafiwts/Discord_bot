@@ -3,21 +3,24 @@ import os
 
 load_dotenv()
 
-dict_of_actions = {1: 'showevents', 
-                   2: 'showcommands'}
+dict_of_actions = {1: "showevents", 2: "showcommands"}
 
-dict_of_events = {'askbot': '@askbot',
-                  'weather': '@checkweather',
-                  'encourage': '@encourageme',
-                  'find_item': '@finditem'}
+dict_of_events = {
+    "askbot": "@askbot",
+    "weather": "@checkweather",
+    "encourage": "@encourageme",
+    "find_item": "@finditem",
+}
 
-dict_of_commands = {'joined': '!joined', 
-                    'start': '!start', 
-                    'session': '!session', 
-                    'end': '!end', 
-                    'users': '!users', 
-                    'square': '!square', 
-                    'scrabblepoints': '!scrabblepoints'}
+dict_of_commands = {
+    "joined": "!joined",
+    "start": "!start",
+    "session": "!session",
+    "end": "!end",
+    "users": "!users",
+    "square": "!square",
+    "scrabblepoints": "!scrabblepoints",
+}
 
 
 class EventsView:
@@ -30,7 +33,7 @@ class EventsView:
             "ChatGPT in order to process user's given command"
         )
         return description
-    
+
     @classmethod
     def weather_event(cls):
         description = (
@@ -47,16 +50,16 @@ class EventsView:
             "to make your day better :)"
         )
         return description
-    
+
     @classmethod
     def find_item_event(cls):
         description = (
-            f"{cls.events['find_item']} <item> - enter the event type " 
+            f"{cls.events['find_item']} <item> - enter the event type "
             "followed by the name of the item to receive the best offers "
             "of a given product form the online store"
         )
         return description
-    
+
     @classmethod
     def return_all_events(cls):
         events = (
@@ -66,8 +69,8 @@ class EventsView:
             f"{cls.find_item_event()}\n"
         )
         return events
-    
-    
+
+
 class CommandsView:
     commands = dict_of_commands
 
@@ -78,29 +81,24 @@ class CommandsView:
             f"date of joining the guild {os.getenv('DISCORD_GUILD')}"
         )
         return description
-    
+
     @classmethod
     def start_command(cls):
-        description = (
-            f"{cls.commands['start']} - begins user's session"
-        )
+        description = f"{cls.commands['start']} - begins user's session"
         return description
 
     @classmethod
     def session_command(cls):
         description = (
-            f"{cls.commands['session']} - checks the duration "
-            "of user's session"
+            f"{cls.commands['session']} - checks the duration " "of user's session"
         )
         return description
-    
+
     @classmethod
     def end_command(cls):
-        description = (
-            f"{cls.commands['end']} - ends user's session " 
-        )
+        description = f"{cls.commands['end']} - ends user's session "
         return description
-    
+
     @classmethod
     def users_command(cls):
         description = (
@@ -108,7 +106,7 @@ class CommandsView:
             f"user for a guild {os.getenv('DISCORD_GUILD')}"
         )
         return description
-    
+
     @classmethod
     def square_command(cls):
         description = (
@@ -116,7 +114,7 @@ class CommandsView:
             "of an integer provided by the user"
         )
         return description
-    
+
     @classmethod
     def scrabblepoints_command(cls):
         description = (

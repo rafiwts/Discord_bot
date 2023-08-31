@@ -35,7 +35,7 @@ class Controller:
         sender = sent_message.author
         discord_user = DiscordUser.get_or_create_user(sender)
         current_event = Event.get_or_none(
-            name=sent_message.content, user=discord_user.id
+            content=sent_message.content, user=discord_user.id
         )
         if current_event is None:
             new_event = Event.create_new_event(

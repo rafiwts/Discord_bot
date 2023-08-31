@@ -4,11 +4,11 @@ import peewee
 from datetime import datetime
 from unittest.mock import Mock, patch
 
+import database
 from database.models import DiscordUser, Event, Reaction, Message, BotUser, Command
 
 
-class TestUserTable:
-    # FIXME: how to save the whole for records
+class TestUser:
     @pytest.mark.parametrize(
         "id, discord_id, username, guildname, created_at",
         [
@@ -186,7 +186,7 @@ class TestUserTable:
             create_user_that_exists.save()
 
 
-class TestMessageTable:
+class TestMessage:
     @pytest.mark.parametrize(
         "id, discord_id, content, created_at, user",
         [
@@ -297,7 +297,7 @@ class TestMessageTable:
             )
 
 
-class TestCommandTable:
+class TestCommand:
     @pytest.mark.parametrize(
         "id, content, user",
         [
@@ -371,7 +371,7 @@ class TestCommandTable:
             Command.create(content="!newcommand", user=1)
 
 
-class TestBotTable:
+class TestBot:
     @pytest.mark.parametrize(
         "id, discord_id, botname, prefix, owner",
         [
@@ -424,7 +424,6 @@ class TestBotTable:
     def test_check_user_or_bot(self, session, mock_discord_user, mock_bot_user):
         # check discord user
         get_discord_user = BotUser.check_user_or_bot(mock_discord_user.discord_id)
-        print(mock_bot_user.discord_id)
 
         assert get_discord_user.discord_id == mock_discord_user.discord_id
 
@@ -469,7 +468,7 @@ class TestBotTable:
             new_bot.save()
 
 
-class TestReactionTable:
+class TestReaction:
     @pytest.mark.parametrize(
         "user_from, user_to, message",
         [(1, 2, 1), (2, 3, 2), (3, 4, 3), (4, 1, 4)],
@@ -506,3 +505,121 @@ class TestReactionTable:
 
         assert new_reaction.user_from.id == current_user.id
         assert new_reaction.message.id == current_message.id
+
+    def test_reaction_foreign_keys_validation(
+        self, session, mock_discord_user_and_message
+    ):
+        current_user = DiscordUser.get(discord_id=1111)
+        current_message = Message.get(discord_id=1010)
+
+        # incorrect message id
+        with pytest.raises(peewee.IntegrityError):
+            with patch("database.models.Message", new_callable=Mock) as message:
+                message.user.id = current_user.id
+                message.id = 2
+
+                new_reaction = Reaction.create_new_reaction(current_user, message)
+
+                new_reaction.save()
+
+        # incorrect user id for `user_to` field
+        with pytest.raises(peewee.IntegrityError):
+            with patch("database.models.Message", new_callable=Mock) as message:
+                message.user.id = 2
+                message.id = current_message.id
+
+                new_reaction = Reaction.create_new_reaction(current_user, message)
+
+                new_reaction.save()
+
+        # incorrect user id for `user_from` field
+        with pytest.raises(peewee.IntegrityError):
+            with patch(
+                "database.models.DiscordUser", new_callable=Mock
+            ) as discord_user:
+                discord_user.id = 2
+
+                new_reaction = Reaction.create_new_reaction(
+                    discord_user.id, current_message
+                )
+
+                new_reaction.save()
+
+
+class TestEvent:
+    @pytest.mark.parametrize(
+        "id, content, created_at, user",
+        [
+            (1, "message1", datetime.now(), 4),
+            (2, "message2", datetime.now(), 3),
+            (3, "message3", datetime.now(), 2),
+            (4, "message4", datetime.now(), 1),
+        ],
+    )
+    def test_create_event_with_all_data(
+        self,
+        session,
+        mock_discord_users,
+        id,
+        content,
+        created_at,
+        user,
+    ):
+        new_event = Event.create(
+            id=id, content=content, created_at=created_at, user=user
+        )
+
+        new_event.save()
+
+        assert new_event.id == id
+        assert new_event.user.id == user
+        assert new_event.content == content
+        assert new_event.counter == 1
+
+    def test_create_new_event_with_message(self, session, mock_discord_user, mock_time):
+        with patch("discord.Message", new_callable=Mock) as message:
+            message.created_at = mock_time
+            message.content = "message1"
+
+            new_event = Event.create_new_event(mock_discord_user.id, discord.Message)
+
+            new_event.save()
+
+            assert new_event.content == message.content
+            assert new_event.created_at == mock_time
+
+    def test_create_new_event_with_no_message(self, session, mock_discord_user):
+        new_event = Event.create_new_event(mock_discord_user.id)
+
+        new_event.save()
+
+        assert new_event.content is None
+        assert new_event.user.id == mock_discord_user.id
+
+    def test_increment_counter(self, session, mock_discord_user_and_message):
+        current_user = DiscordUser.get(discord_id=1111)
+        current_message = Message.get(discord_id=1010)
+
+        with patch("discord.Message", new_callable=Mock) as message:
+            message.content = current_message.content
+
+            new_event = Event.create(
+                content=current_message.content, user=current_user.id
+            )
+
+            new_event.save()
+
+            Event.increment_counter(
+                user=current_user.id,
+                sent_message=discord.Message,
+                counter=new_event.counter + 1,
+            ).execute()
+
+            updated_event = Event.get(content=current_message.content)
+
+            assert updated_event.counter == 2
+
+    def test_event_foreign_keys_validations(self, session):
+        with pytest.raises(peewee.IntegrityError):
+            new_event = Event.create(content="message1", user=1)
+            new_event.save()

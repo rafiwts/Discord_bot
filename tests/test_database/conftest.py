@@ -26,9 +26,9 @@ def session():
     postgres_db.create_tables(MODELS)
     try:
         yield postgres_db
+        postgres_db.close()
     except peewee.DatabaseError as err:
         print("Database error: ", err)
-    postgres_db.close()
 
 
 @pytest.fixture
@@ -101,9 +101,7 @@ def mock_discord_user_and_message(mock_time):
         joined_at=mock_time,
     )
 
-    Message.create(
-        discord_id=1010, content="I wrote a message", created_at=mock_time, user=1
-    )
+    Message.create(discord_id=1010, content="message", created_at=mock_time, user=1)
 
 
 @pytest.fixture

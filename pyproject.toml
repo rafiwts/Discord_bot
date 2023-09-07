@@ -20,7 +20,7 @@ pytest-postgresql = "^5.0.0"
 pytest-pgsql = "^1.1.2"
 pytest-mock = "^3.11.1"
 black = "^23.7.0"
-
+pre-commit = "^3.4.0"
 
 [build-system]
 requires = ["poetry-core"]

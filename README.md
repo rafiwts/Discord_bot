@@ -1,4 +1,4 @@
-# diuresis
+# Discord Bot
 ...Decription of the project and its aim...
 
 ## Details
@@ -18,7 +18,7 @@ poetry shell
 ```shell
 pip install
 ```
-- run the docker contener with the command:
+- run the docker container with the command (the command may vary depending on the operating system you use):
 ```shell
 docker compose up
 ```
@@ -28,7 +28,7 @@ pre-commit install
 ```
 By using this command, you make sure that the style of the code will be checked before commiting any changes to the repository.
 
-- following command runs the project (note that the command may vary depending on the operating system you use)
+- following command runs the project (note that the command may vary depending on the operating system you use):
 ```shell
 python3 main.py
 ```

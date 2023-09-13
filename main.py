@@ -1,10 +1,10 @@
-import discord
-
 import logging
 
+import discord
+
 from bot.client import DiscordBot
-from bot.session import Session
 from bot.server_events import ServerEvents
+from bot.session import Session
 from bot.users_commands import UserCommands
 from bot.view_lists import dict_of_actions, dict_of_events
 from database.database_connection import create_tables
@@ -70,7 +70,6 @@ async def on_member_unban(guild, user) -> None:
 async def on_message(message: discord.Message) -> None:
     if message.author == bot.user:
         return
-    # TODO: if something is not a command, do not process it as a command - it accepts all inputs with ! larger than 1
     elif message.content.startswith("!") and len(message.content) > 1:
         await bot.process_commands(message)
     elif message.content.startswith(tuple(dict_of_actions.values())):

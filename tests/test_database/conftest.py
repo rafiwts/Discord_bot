@@ -1,11 +1,10 @@
+from datetime import datetime
+
 import peewee
 import pytest
-import discord
-from datetime import datetime
-from unittest.mock import Mock
 
 import settings
-from database.models import DiscordUser, Event, Reaction, Message, BotUser, Command
+from database.models import BotUser, Command, DiscordUser, Event, Message, Reaction
 
 postgres_db = peewee.PostgresqlDatabase(
     settings.DATABASE_NAME_TEST,

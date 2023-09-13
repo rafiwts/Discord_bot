@@ -1,11 +1,12 @@
-import pytest
-import discord
-import peewee
+# ruff: noqa: E712
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-import database
-from database.models import DiscordUser, Event, Reaction, Message, BotUser, Command
+import discord
+import peewee
+import pytest
+
+from database.models import BotUser, Command, DiscordUser, Event, Message, Reaction
 
 
 class TestUser:
@@ -51,7 +52,7 @@ class TestUser:
             assert new_user.username == user.name
             assert new_user.created_at == user.created_at
 
-    def test_create_new_admin(self, session, mock_time):
+    def test_create_new_admin_user(self, session, mock_time):
         with patch("discord.Member", new_callable=Mock) as user:
             user.id = 1111
             user.name = "Rafał"

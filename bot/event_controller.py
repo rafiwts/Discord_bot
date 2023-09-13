@@ -1,14 +1,14 @@
-import discord
-from discord.ext import commands
 from datetime import datetime
-import peewee
 
-from database.models import DiscordUser, Command, Message, BotUser, Reaction, Event
+import discord
+import peewee
+from discord.ext import commands
+
+from database.models import BotUser, Command, DiscordUser, Event, Message, Reaction
 
 
 # TODO: improbing and adding commands and events, chatgpt, parsing
 class Controller:
-    # FIXME: why does it need a second parameter - controller in 3 methods?
     async def message_create_controller(self, sent_message: discord.Message) -> None:
         sender = sent_message.author
         discord_user = DiscordUser.get_or_create_user(sender)

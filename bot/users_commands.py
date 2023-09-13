@@ -1,12 +1,12 @@
 import os
 import time
+
 import discord
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-# TODO: change it into several classes
 class UserCommands:
     # maybe they will be necessary later on
     token: int = os.getenv("TOKEN")
@@ -85,6 +85,6 @@ class UserCommands:
                 total_points += score[letter]
             print(f"{users_choice} has {total_points} points")
             return context.send(f"{users_choice} has {total_points} points")
-        except:
+        except TypeError:
             print(f"Error! {users_choice} is not a word")
             return context.send(f'Error! "{users_choice}" is not a valid word')

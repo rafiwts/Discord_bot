@@ -1,6 +1,5 @@
 __pycache__
 .venv
 .env
-bot/snippets.py
 discord.log
 my-postgres.conf

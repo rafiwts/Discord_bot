@@ -1,8 +1,9 @@
+from typing import Coroutine
+
 import discord
 from discord.ext import commands
 
 from .event_controller import Controller
-from typing import Coroutine
 
 
 class DiscordBot(commands.Bot):

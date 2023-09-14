@@ -1,6 +1,7 @@
 import time
 
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 
 from .session import Session
@@ -10,7 +11,7 @@ load_dotenv()
 
 class UserCommands:
     @staticmethod
-    def display_info_command(context: discord.Message):
+    def display_info_command(context: discord.Message) -> str:
         return context.send(
             """Below you will find a list of commands that you can use:
 showevents: returns a list of actions
@@ -18,7 +19,7 @@ showcommands: returns a list of commands"""
         )
 
     @staticmethod
-    def new_session_command(context: discord.Message, new_session: Session):
+    def new_session_command(context: discord.Message, new_session: Session) -> str:
         new_session.is_active = True
         new_session.start_time = time.time()
         session_starting_time = context.message.created_at.strftime("%H:%M:%S")
@@ -27,19 +28,21 @@ showcommands: returns a list of commands"""
         )
 
     @staticmethod
-    def lasting_session(context, current_session):
+    def lasting_session(context: discord.Message, current_session: Session) -> str:
         return_session = current_session.duration_of_session
         return context.send(f"The session lasts {round(return_session, 2)} seconds")
 
     @staticmethod
-    def end_session_command(context, current_session):
+    def end_session_command(context: discord.Message, current_session: Session) -> str:
         current_session.is_active = False
         current_session.finish_time = time.time()
         duration = current_session.finish_time - current_session.start_time
         return context.send(f"The session ended after {round(duration, 2)} seconds")
 
     @staticmethod
-    def list_of_users(context, guild_id: discord.Guild, bot):
+    def list_of_users(
+        context: discord.Message, guild_id: discord.Guild, bot: commands.Bot
+    ) -> str:
         for guild in bot.guilds:
             if guild.name == guild_id:
                 break
@@ -50,7 +53,7 @@ showcommands: returns a list of commands"""
         return context.send(members)
 
     @staticmethod
-    def return_square(context, users_choice):
+    def return_square(context: discord.Message, users_choice: int) -> str:
         try:
             print(users_choice)
             return context.send(int(users_choice) ** 2)
@@ -59,7 +62,7 @@ showcommands: returns a list of commands"""
             return context.send(f'Error! "{users_choice}" is not a valid number')
 
     @staticmethod
-    def get_scrabble_points(context, users_choice):
+    def get_scrabble_points(context: discord.Message, users_choice: str) -> str:
         score = {
             "a": 1,
             "c": 3,

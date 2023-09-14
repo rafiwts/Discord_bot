@@ -1,11 +1,9 @@
-import peewee
-import discord
 from datetime import datetime
 
-from database.models.base import DefaultDatabaseModel
-from database.models import DiscordUser
+import discord
+import peewee
 
-# FIXME: cannot import from the 'init' file
+from database.models.base import DefaultDatabaseModel
 from database.models.command import Command, DiscordUser
 
 

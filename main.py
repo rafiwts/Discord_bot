@@ -164,6 +164,13 @@ async def users(ctx) -> None:
 
 
 @bot.command()
+async def info(ctx) -> None:
+    info_command = UserCommands.display_info_command(ctx)
+
+    await info_command
+
+
+@bot.command()
 async def square(ctx, arg) -> None:
     return_square_number = UserCommands.return_square(ctx, arg)
     await return_square_number

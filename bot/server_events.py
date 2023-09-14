@@ -56,7 +56,9 @@ showcommands: returns a list of commands"""
 
     @classmethod
     def return_on_typing(cls, channel: discord.TextChannel, user: discord.Member):
-        return channel.send(f"Hi {user}! How can I help you?")
+        return channel.send(
+            f'Hi {user}! How can I help you? For more information, type "!info" command'
+        )
 
     @classmethod
     def return_on_joining(cls, member: discord.Message, channel: discord.TextChannel):

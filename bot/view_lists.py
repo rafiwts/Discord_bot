@@ -19,6 +19,7 @@ dict_of_commands = {
     "session": "!session",
     "end": "!end",
     "users": "!users",
+    "info": "!info",
     "square": "!square",
     "scrabblepoints": "!scrabblepoints",
 }
@@ -109,6 +110,14 @@ class CommandsView:
         return description
 
     @classmethod
+    def info_command(cls):
+        description = (
+            f"{cls.commands['info']} - returns a set of options "
+            "you have within the server"
+        )
+        return description
+
+    @classmethod
     def square_command(cls):
         description = (
             f"{cls.commands['square']} - returns a square number "
@@ -127,6 +136,7 @@ class CommandsView:
     @classmethod
     def return_all_commands(cls):
         commands = (
+            f"{cls.info_command()}\n"
             f"{cls.joined_command()}\n"
             f"{cls.start_command()}\n"
             f"{cls.session_command()}\n"

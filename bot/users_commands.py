@@ -1,20 +1,24 @@
-import os
 import time
 
 import discord
 from dotenv import load_dotenv
 
+from .session import Session
+
 load_dotenv()
 
 
 class UserCommands:
-    # maybe they will be necessary later on
-    token: int = os.getenv("TOKEN")
-    # does not work as an environment variable
-    channel_id: int = os.getenv("CHANNEL_ID")
-    guild: str = os.getenv("DISCORD_GUILD")
+    @staticmethod
+    def display_info_command(context: discord.Message):
+        return context.send(
+            """Below you will find a list of commands that you can use:
+showevents: returns a list of actions
+showcommands: returns a list of commands"""
+        )
 
-    def new_session_command(context, new_session):
+    @staticmethod
+    def new_session_command(context: discord.Message, new_session: Session):
         new_session.is_active = True
         new_session.start_time = time.time()
         session_starting_time = context.message.created_at.strftime("%H:%M:%S")
@@ -22,16 +26,19 @@ class UserCommands:
             f"New session started at {session_starting_time} by {new_session.user_id}"
         )
 
+    @staticmethod
     def lasting_session(context, current_session):
         return_session = current_session.duration_of_session
         return context.send(f"The session lasts {round(return_session, 2)} seconds")
 
+    @staticmethod
     def end_session_command(context, current_session):
         current_session.is_active = False
         current_session.finish_time = time.time()
         duration = current_session.finish_time - current_session.start_time
         return context.send(f"The session ended after {round(duration, 2)} seconds")
 
+    @staticmethod
     def list_of_users(context, guild_id: discord.Guild, bot):
         for guild in bot.guilds:
             if guild.name == guild_id:
@@ -42,6 +49,7 @@ class UserCommands:
 
         return context.send(members)
 
+    @staticmethod
     def return_square(context, users_choice):
         try:
             print(users_choice)
@@ -50,6 +58,7 @@ class UserCommands:
             print(f"Error! {users_choice} is not a valid number")
             return context.send(f'Error! "{users_choice}" is not a valid number')
 
+    @staticmethod
     def get_scrabble_points(context, users_choice):
         score = {
             "a": 1,

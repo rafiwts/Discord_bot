@@ -7,7 +7,7 @@ load_dotenv()
 dict_of_actions = {1: "showevents", 2: "showcommands"}
 
 dict_of_events = {
-    "askbot": "@askbot",
+    "chatgpt": "@chatgpt",
     "weather": "@checkweather",
     "encourage": "@encourageme",
     "find_item": "@finditem",
@@ -31,8 +31,8 @@ class EventsView:
     @classmethod
     def askbot_event(cls):
         description = (
-            f"{cls.events['askbot']} - conntects dicodrd with "
-            "ChatGPT in order to process user's given command"
+            f"{cls.events['chatgpt']} <user's question> - conntects "
+            "discord with ChatGPT in order to process user's given command. "
         )
         return description
 

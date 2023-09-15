@@ -3,7 +3,7 @@ from datetime import datetime
 import peewee
 import pytest
 
-import settings
+import utils.settings as settings
 from database.models import BotUser, Command, DiscordUser, Event, Message, Reaction
 
 postgres_db = peewee.PostgresqlDatabase(

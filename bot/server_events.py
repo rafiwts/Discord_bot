@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from ai_chatgpt.chat_bot import discord_chat_gpt
+
 from .parsing_handlers import get_city_temperature, get_encouragement_quote
 from .validators import ExceptionView as exception
 from .view_lists import CommandsView, EventsView, dict_of_events
@@ -34,10 +36,13 @@ showcommands: returns a list of commands"""
     @classmethod
     def return_on_event(cls, message: discord.Message):
         # TODO: implement the functionality
-        if message.content.strip() == dict_of_events["askbot"]:
-            pass
+        if message.content.strip().startswith(dict_of_events["chatgpt"]):
+            users_input = message.content.replace(dict_of_events["chatgpt"], "")
+            chat_response = discord_chat_gpt(users_input)
+            return message.channel.send(chat_response)
         elif message.content.strip() == dict_of_events["encourage"]:
-            return message.channel.send(get_encouragement_quote())
+            encouragement_quote = get_encouragement_quote()
+            return message.channel.send(encouragement_quote)
         elif message.content.strip().startswith(dict_of_events["weather"]):
             users_response = message.content.split()
             try:

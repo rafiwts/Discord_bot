@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
 
+from .parsing_handlers import get_city_temperature, get_encouragement_quote
+from .validators import ExceptionView as exception
 from .view_lists import CommandsView, EventsView, dict_of_events
-from .web_responses import get_encouragement_quote
 
 
 class ServerEvents:
@@ -38,7 +39,16 @@ showcommands: returns a list of commands"""
         elif message.content.strip() == dict_of_events["encourage"]:
             return message.channel.send(get_encouragement_quote())
         elif message.content.strip().startswith(dict_of_events["weather"]):
-            pass
+            users_response = message.content.split()
+            try:
+                country = users_response[1]
+                city = users_response[2]
+
+                temperature = get_city_temperature(country, city)
+
+                return message.channel.send(temperature)
+            except IndexError:
+                return message.channel.send(exception.weather_value_exceptions())
         elif message.content.strip().startswith(dict_of_events["find_item"]):
             pass
 

@@ -1,6 +1,6 @@
 import peewee
 
-import settings
+from utils import settings
 
 psql_database = peewee.PostgresqlDatabase(
     settings.DATABASE_NAME,

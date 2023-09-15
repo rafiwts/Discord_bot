@@ -39,7 +39,7 @@ class EventsView:
     @classmethod
     def weather_event(cls):
         description = (
-            f"{cls.events['weather']} <city> - enter the event type "
+            f"{cls.events['weather']} <country> <city> - enter the event type "
             "followed by the name of the city to receive the current "
             "weather in a given place"
         )

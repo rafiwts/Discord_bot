@@ -1,5 +1,5 @@
 import os
-import pathlib
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,4 +14,4 @@ USER_NAME = os.getenv("USER_NAME")
 PASSWORD = os.getenv("PASSWORD")
 HOST = os.getenv("HOST")
 PORT = os.getenv("PORT")
-BASE_DIR = pathlib.Path(__file__).parent
+APIKEY = os.getenv("APIKEY")

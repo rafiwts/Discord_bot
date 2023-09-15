@@ -8,7 +8,7 @@ from bot.session import Session
 from bot.users_commands import UserCommands
 from bot.view_lists import dict_of_actions, dict_of_events
 from database.database_connection import create_tables
-from settings import CHANNEL_ID, GUILD, TOKEN
+from utils.settings import CHANNEL_ID, GUILD, TOKEN
 
 intents = discord.Intents.default()
 intents.message_content = True

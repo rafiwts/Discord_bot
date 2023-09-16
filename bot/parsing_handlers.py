@@ -19,8 +19,6 @@ A quote by {json_data[0]['a']} has been radomly chosen:
 
 # TODO: validations to city and country
 def get_city_temperature(country, city):
-    # get longitude and latitude of the city asked
-
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     response = requests.get(

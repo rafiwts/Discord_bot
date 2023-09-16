@@ -46,6 +46,7 @@ showcommands: returns a list of commands"""
         elif message.content.strip().startswith(dict_of_events["weather"]):
             users_response = message.content.split()
             try:
+                # TODO: what about cities with more than one word or countries?
                 country = users_response[1]
                 city = users_response[2]
 
@@ -53,7 +54,7 @@ showcommands: returns a list of commands"""
 
                 return message.channel.send(temperature)
             except IndexError:
-                return message.channel.send(exception.weather_value_exceptions())
+                return message.channel.send(exception.weather_value_exception())
         elif message.content.strip().startswith(dict_of_events["find_item"]):
             pass
 

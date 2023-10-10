@@ -7,7 +7,7 @@ from bot.client import DiscordBot
 from bot.server_events import ServerEvents
 from bot.session import Session
 from bot.users_commands import UserCommands
-from bot.validators import ExceptionView as exception
+from bot.validators import ValidationView as validation
 from bot.view_lists import dict_of_actions, dict_of_events
 from database.database_connection import create_tables
 from utils.settings import CHANNEL_ID, GUILD, TOKEN
@@ -84,7 +84,7 @@ async def on_message(message: discord.Message) -> None:
             await response_to_event
             await bot.process_event(message)
         except HTTPException:
-            await exception.response_to_discord_exception(message)
+            await validation.response_to_discord_validation(message)
     else:
         await bot.process_message(message)
 

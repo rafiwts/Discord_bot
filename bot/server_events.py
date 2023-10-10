@@ -3,8 +3,12 @@ from discord.ext import commands
 
 from ai_chatgpt.chat_bot import discord_chat_gpt
 
-from .parsing_handlers import get_city_temperature, get_encouragement_quote
-from .validators import ExceptionView as exception
+from .parsing_handlers import (
+    get_all_products,
+    get_city_temperature,
+    get_encouragement_quote,
+)
+from .validators import ValidationView as validation
 from .view_lists import CommandsView, EventsView, dict_of_events
 
 
@@ -54,9 +58,26 @@ showcommands: returns a list of commands"""
 
                 return message.channel.send(temperature)
             except IndexError:
-                return message.channel.send(exception.weather_value_exception())
+                return message.channel.send(validation.weather_value_validation())
         elif message.content.strip().startswith(dict_of_events["find_item"]):
+            # TODO: find a given item by name
             pass
+        elif message.content.strip().startswith(dict_of_events["find_categories"]):
+            # TODO: fetch all categories
+            pass
+            # TODO: fetch all products from one category
+        elif message.content.strip().startswith(dict_of_events["find_products"]):
+            try:
+                user_response = message.content.split()
+                # if a user provided some value except @findproducts, validate it
+                limit = int(user_response[1])
+                if limit in range(1, 11):
+                    get_products = get_all_products(limit=limit)
+                    return message.channel.send(get_products)
+                else:
+                    return message.channel.send(validation.limit_range_validation())
+            except (ValueError, IndexError):
+                return message.channel.send(validation.limit_value_validation())
 
     @classmethod
     def return_on_editing(

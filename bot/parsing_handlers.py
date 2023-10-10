@@ -42,3 +42,20 @@ def get_city_temperature(country, city):
     description = f"Today in {city}, {country}, the temperature is {temperature}°C"
 
     return description
+
+
+def get_all_products(name=None, category=None, limit=None):
+    if limit:
+        headers = CaseInsensitiveDict()
+        response = requests.get(
+            f"https://fakestoreapi.com/products?limit={limit}", headers=headers
+        )
+
+        # get all products to the list
+        json_response = json.loads(response.text)
+        display_all_products = ""
+
+        for index, item in list(enumerate(json_response)):
+            display_all_products += f"{index}. {item['title']}, ${item['price']}\n"
+
+        return display_all_products

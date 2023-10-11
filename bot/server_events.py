@@ -4,9 +4,9 @@ from discord.ext import commands
 from ai_chatgpt.chat_bot import discord_chat_gpt
 
 from .parsing_handlers import (
-    get_all_products,
     get_city_temperature,
     get_encouragement_quote,
+    get_store_products,
 )
 from .validators import ValidationView as validation
 from .view_lists import CommandsView, EventsView, dict_of_events
@@ -31,7 +31,6 @@ showcommands: returns a list of commands"""
         events: EventsView = EventsView,
     ):
         if message.content.strip() == "showevents":
-            # TODO: after finishing complete the list
             return message.channel.send(events.return_all_events())
 
         if message.content.strip() == "showcommands":
@@ -39,7 +38,6 @@ showcommands: returns a list of commands"""
 
     @classmethod
     def return_on_event(cls, message: discord.Message):
-        # TODO: implement the functionality
         if message.content.strip().startswith(dict_of_events["chatgpt"]):
             users_input = message.content.replace(dict_of_events["chatgpt"], "")
             chat_response = discord_chat_gpt(users_input)
@@ -48,31 +46,44 @@ showcommands: returns a list of commands"""
             encouragement_quote = get_encouragement_quote()
             return message.channel.send(encouragement_quote)
         elif message.content.strip().startswith(dict_of_events["weather"]):
-            users_response = message.content.split()
+            user_response = message.content.split(",")
             try:
-                # TODO: what about cities with more than one word or countries?
-                country = users_response[1]
-                city = users_response[2]
+                # get country name from response
+                list_of_strings = user_response[0].split(" ")[1:]
+                country = " ".join(list_of_strings)
+                city = user_response[1]
 
                 temperature = get_city_temperature(country, city)
 
                 return message.channel.send(temperature)
             except IndexError:
                 return message.channel.send(validation.weather_value_validation())
-        elif message.content.strip().startswith(dict_of_events["find_item"]):
-            # TODO: find a given item by name
-            pass
+        elif message.content.strip().startswith(dict_of_events["find_product"]):
+            try:
+                user_response = message.content.split()
+                name = user_response[1]
+                get_category_products = get_store_products(name=name)
+                return message.channel.send(get_category_products)
+            except IndexError:
+                return message.channel.send(validation.no_product_valdation())
+        elif message.content.strip().startswith(dict_of_events["find_category"]):
+            try:
+                user_response = message.content.split()
+                category = user_response[1]
+                get_category_products = get_store_products(category=category)
+                return message.channel.send(get_category_products)
+            except IndexError:
+                return message.channel.send(validation.no_category_valdation())
         elif message.content.strip().startswith(dict_of_events["find_categories"]):
-            # TODO: fetch all categories
-            pass
-            # TODO: fetch all products from one category
+            get_category = get_store_products()
+            return message.channel.send(get_category)
         elif message.content.strip().startswith(dict_of_events["find_products"]):
             try:
                 user_response = message.content.split()
-                # if a user provided some value except @findproducts, validate it
+                # if user provided some value except @findproducts, validate it
                 limit = int(user_response[1])
                 if limit in range(1, 11):
-                    get_products = get_all_products(limit=limit)
+                    get_products = get_store_products(limit=limit)
                     return message.channel.send(get_products)
                 else:
                     return message.channel.send(validation.limit_range_validation())

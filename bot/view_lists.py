@@ -11,7 +11,8 @@ dict_of_events = {
     "chatgpt": "@chatgpt",
     "weather": "@checkweather",
     "encourage": "@encourageme",
-    "find_item": "@finditem",
+    "find_product": "@findproduct",
+    "find_category": "@findcategory",
     "find_categories": "@findcategories",
     "find_products": "@findproducts",
 }
@@ -42,7 +43,7 @@ class EventsView:
     @classmethod
     def weather_event(cls):
         description = (
-            f"{cls.events['weather']} <country> <city> - enter the event type "
+            f"{cls.events['weather']} <country>, <city> - enter the event type "
             "followed by the name of the city to receive the current "
             "weather in a given place"
         )
@@ -57,9 +58,9 @@ class EventsView:
         return description
 
     @classmethod
-    def find_item_by_name_event(cls):
+    def find_product_by_name_event(cls):
         description = (
-            f"{cls.events['find_item']} <item> - enter the event type "
+            f"{cls.events['find_product']} <item> - enter the event type "
             "followed by the name of the item to receive the best offers "
             "of a given product form the online store"
         )
@@ -68,7 +69,7 @@ class EventsView:
     @classmethod
     def find_all_products_for_category_event(cls):
         description = (
-            f"{cls.events['find_products']} <category> - returns all products "
+            f"{cls.events['find_category']} <category> - returns all products "
             "that are available for a given category"
         )
         return description
@@ -96,9 +97,9 @@ class EventsView:
             f"{cls.askbot_event()}\n"
             f"{cls.weather_event()}\n"
             f"{cls.encourage_event()}\n"
-            f"{cls.find_item_by_name_event()}\n"
-            f"{cls.find_all_categories_event()}\n"
+            f"{cls.find_product_by_name_event()}\n"
             f"{cls.find_all_products_for_category_event()}\n"
+            f"{cls.find_all_categories_event()}\n"
             f"{cls.find_products_with_limit_event()}"
         )
         return events

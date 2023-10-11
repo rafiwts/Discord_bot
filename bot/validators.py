@@ -45,6 +45,26 @@ class ValidationView:
 
     @staticmethod
     def limit_value_validation():
-        description = "The value is invalid. Please check if you provided a number "
+        description = (
+            "The value is invalid. Please check if you provided an approptiate number "
+        )
+
+        return description
+
+    @staticmethod
+    def no_category_valdation():
+        description = "No category/wrong category has been provided"
+
+        return description
+
+    @staticmethod
+    def no_product_valdation():
+        description = "No such product exists. Check data you have provided"
+
+        return description
+
+    @staticmethod
+    def no_country_validation():
+        description = "No such country exists. Check data you have provided"
 
         return description

@@ -1,5 +1,5 @@
 # Discord Bot
-Discord bot helps users to receive vital information after sending an appropriate command. It is also connected with chatgpt so that user can have a direct access to this tool. It is possible for a chat to be expanded depening on requirements and needs
+Discord bot helps users to receive vital information after sending an appropriate command. It is also connected with chatgpt so that user can have a direct access to this tool. It is possible for a chat to be expanded depening on requirements and needs. Please visit this [link](https://discord.com/developers/docs/intro) to learn more about the bot on a discord platform.
 
 ## Instalation
 - after cloning the project, create a Python virtual environment with poetry and activate it:

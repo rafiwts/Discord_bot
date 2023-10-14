@@ -31,12 +31,3 @@ repos:
       - id: pydocstyle
         files: ^saleor/
         exclude: tests/
-
-  - repo: local
-    hooks:
-      - id: migrations-check
-        language: system
-        name: Check for uncreated migrations.
-        entry: sh -c "./manage.py makemigrations --check --dry-run"
-        files: "models\\.py$"
-        stages: [commit]
